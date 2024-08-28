@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300&display=swap');
 :root {
-    --cor-principal: #9BCA3B; /*  Define a variável de cor --cor-primaria com o valor #*****  */
-    --cor-secundaria: #2C3711;
-    --animações: #000000;
+    --cor-principal: #6b0002; /*  Define a variável de cor --cor-primaria com o valor #*****  */
+    --cor-secundaria: black;
+    --animações1: #6b0002;
     --bordas: #fff;
   }
 
@@ -33,11 +33,11 @@ html{
     flex-direction: row-reverse;
 }
 .background1{
-    background-image: linear-gradient(rgba(0,0,0,9),transparent), url('/img/pesos-de-exercicios-dumbbell-de-ferro-com-placas-extra.jpg');
+    background-image: linear-gradient(rgba(0,0,0,9),transparent), url('/img/barbearialogo.jpg');
     background-size:cover;
     background-position: center;
     width: 100%;
-    height: 110vh;
+    height: 100vh;
     display: flex;
     flex-direction: row-reverse;
 }
@@ -56,7 +56,7 @@ nav{
     left: 0;
 }
 .logo{
-    width: 80px;
+    width: 60px;
     cursor: pointer;
     padding: 5px 10px;
 }
@@ -64,23 +64,23 @@ nav{
     width: 30px;
     cursor: pointer;
 }
+nav ul{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
 nav ul li{
-    display: inline-block;
     list-style: none;
     margin: 10px 30px;
     text-align: left;
 }
-nav ul li:last-child{
-    right: 50px;
-    position: absolute;
-}
-nav ul li a{
+nav a{
     color: #fff;
     text-decoration: none;
     position: relative;
 }
 /*Animação navbar*/
-nav ul li a::after{
+nav  a:after{
     content: '';
     width: 0;
     height: 3px;
@@ -88,11 +88,20 @@ nav ul li a::after{
     bottom: -5px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #fff;
+    background-color: var(--animações1);
     transition: width 0.6s;
 }
-nav ul li a:hover::after{
+nav a:hover::after{
     width: 65%;
+}
+#loginicone{
+    position: fixed;
+    right: 100px;
+}
+.separadordecontainer{
+    width: 100%;
+    height: 5px;
+    background-color: var(--cor-secundaria);
 }
 /*se quiser centralizr ellemento filho no .container só joga grid no class pai e place itens no filho*/
 .background1 .backtxt{
@@ -117,7 +126,7 @@ nav ul li a:hover::after{
 
 /*Localização*/
 .parallax1{
-    background-image: linear-gradient(transparent, rgba(0,0,0,7)), url('../img/brick_wall_black.jpg');
+    background-image: linear-gradient(transparent, rgba(0,0,0,7)), url('../img/papel-de-parede-de-barbeiro-fundo-de-marmore-preto.jpg');
     background-size: cover;
     background-attachment: fixed;
     display: flex;
@@ -129,8 +138,4 @@ nav ul li a:hover::after{
     background-color: #fff;
     height: 60vh;
     width: 78vh;
-}
-.localizacao iframe{
-    height: 100%;
-    width: 100%;
 }
