@@ -135,7 +135,8 @@ nav a:hover::after{
     align-items: center;
 }
 .localizacao{
-    background-color: #fff;
+    background-color: #72727286;
+    border-radius: 25px;
     height: 60vh;
-    width: 78vh;
+    width: 98vh;
 }
