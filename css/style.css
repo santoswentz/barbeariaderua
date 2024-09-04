@@ -2,6 +2,7 @@
 :root {
     --cor-principal: #6b0002; /*  Define a variável de cor --cor-primaria com o valor #*****  */
     --cor-secundaria: black;
+    --cor-terciaria: #fafafa;
     --animações1: #6b0002;
     --bordas: #fff;
   }
@@ -136,7 +137,50 @@ nav a:hover::after{
 }
 .localizacao{
     background-color: #72727286;
+    color: var(--cor-terciaria);
     border-radius: 25px;
-    height: 60vh;
-    width: 98vh;
+    height: 35vw;
+    width: 55vw;
 }
+.localizacao h1{
+    font-size: 60px;
+    text-align: center;
+    padding: 5% 0 12% 0;
+}
+.precos{
+    display: grid; 
+    place-items: center;
+}
+#centralizardiveimg #img1{
+    position: absolute;
+    margin-left: 54vw;
+    height: 35vw;
+}
+#centralizardiveimg #img2{
+    position: absolute;
+    margin-right: 54vw;
+    height: 35vw;
+}
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 40vw;
+    height: 10vw;
+  }
+  
+  td, th {
+    border: 2px solid #dddddd;
+    text-align: left;
+    padding: 12px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #adadad;
+  }
+
+
+  @media (max-width: 730px) {
+    h1{
+        font-size: 30px;
+    }
+  }
