@@ -44,8 +44,8 @@ html{
 }
 nav{
     display: flex;
-    width: 100%;
-    height: 90px;
+    width: 100vw;
+    height: min-content;
     align-items: center;
     flex-wrap: wrap;
     background-color: transparent; /* Define a cor de fundo transparente */
@@ -56,10 +56,23 @@ nav{
     top: 0;
     left: 0;
 }
+
+
+@media (max-width: 734px) {
+    nav {
+        backdrop-filter: blur(21vh); /* Aplica o efeito de desfoque */
+    }
+}
+@media (max-width: 650px) {
+    nav {
+        backdrop-filter: blur(35vh); /* Aplica o efeito de desfoque */
+    }
+}
+
+
 .logo{
     width: 60px;
     cursor: pointer;
-    padding: 5px 10px;
 }
 .cart-icon{
     width: 30px;
@@ -67,12 +80,12 @@ nav{
 }
 nav ul{
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     flex-direction: row;
 }
 nav ul li{
     list-style: none;
-    margin: 10px 30px;
+    margin: 10px 20px;
     text-align: left;
 }
 nav a{
@@ -97,7 +110,12 @@ nav a:hover::after{
 }
 #loginicone{
     position: fixed;
-    right: 100px;
+    right: 70px;
+    top: 33px;
+}
+
+#paddinggohorse{
+    padding-right: 120px;
 }
 .separadordecontainer{
     width: 100%;
@@ -110,22 +128,38 @@ nav a:hover::after{
     padding: 170px 60px 0px 0px;
     text-align: end;
 }
+
+@media (max-width: 600px){
+    .background1 .backtxt{
+        padding: 170px 20px 0 0;
+    }
+}
 .background1 .backtxt p{
     color: #fff;
     font-size: 20px;
     text-align: end;
 }
+@media (max-width: 600px){
+    .background1 .backtxt p{
+        font-size: small;
+    }
+}
+
 .background1 .backtxt h1{
-    font-size: 90px;
+    font-size: 7vw;
     -webkit-text-stroke: 1px #fff;  /*deixa a letra só com a borda*/
     color: transparent;
+}
+@media (max-width: 600px){
+    .background1 .backtxt h1{
+        padding-top: 100px;
+        font-size: 10vw;
+    }
 }
 .background1 .backtxt span{
     color: var(--cor-principal);
     -webkit-text-stroke: 1px var(--cor-principal);  /*deixa a letra só com a borda*/
 }
-
-
 
 /*Serviços*/
 .parallax1{
@@ -141,13 +175,13 @@ nav a:hover::after{
     background-color: #72727286;
     color: var(--cor-terciaria);
     border-radius: 25px;
-    height: 35vw;
+    height: 65vh;
     width: 55vw;
 }
 .localizacao h1{
-    font-size: 60px;
+    font-size: 4.5vh;
     text-align: center;
-    padding: 5% 0 12% 0;
+    padding: 5vh 0 12vh 0;
 }
 .precos{
     display: grid; 
@@ -155,32 +189,35 @@ nav a:hover::after{
 }
 #centralizardiveimg #img1{
     position: absolute;
-    margin-left: 54vw;
-    height: 35vw;
+    margin-left: 60vw;
+    height: 40vw;
 }
 #centralizardiveimg #img2{
     position: absolute;
-    margin-right: 54vw;
-    height: 35vw;
+    margin-right: 60vw;
+    height: 40vw;
 }
   table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 40vw;
-    height: 10vw;
+    height: 9vw;
   }
   
   td, th {
     border: 2px solid #dddddd;
     text-align: left;
+    font-size: 1.5vh;
     padding: 12px;
   }
-  
+  @media (max-width: 496px) {
+    th {
+        padding: 6px;
+    }
+}
   tr:nth-child(even) {
     background-color: #adadad;
   }
-
-
 
 
 
@@ -190,9 +227,3 @@ nav a:hover::after{
     width: 100%;
     height: 100vh;
 }
-
-  @media (max-width: 730px) {
-    h1{
-        font-size: 30px;
-    }
-  }
