@@ -3,9 +3,9 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = ''
+app.secret_key = 'Chave_ultraSecreta'
 
-# Função para conectar ao banco de dados
+# conectar ao banco 
 def get_db_connection():
     conn = sqlite3.connect('barbearia.db')
     conn.row_factory = sqlite3.Row  # Permite acessar os resultados como dicionário
@@ -16,7 +16,7 @@ def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Tabela de Usuários
+    #  Usuários
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS Users (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,18 +33,20 @@ def create_tables():
     conn.commit()
     conn.close()
 
-# Função para obter o usuário pelo e-mail
+# obter o usuário pelo e-mail
 def get_user_by_email(email):
     conn = get_db_connection()
     user = conn.execute("SELECT * FROM Users WHERE email = ?", (email,)).fetchone()
     conn.close()
     return user
+
+
 # Rota para INDEX
-@app.route('/index.html')
+@app.route('/')
 def index():
     return render_template('index.html')
 
-# Rota de registro de usuário
+# Rota de Cadastrese
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -73,7 +75,7 @@ def register():
     
     return render_template('register.html')
 
-# Rota de login de usuário
+# Rota de login 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -94,19 +96,46 @@ def login():
     
     return render_template('login.html')
 
+
+
+# Painel do Cliente
+@app.route('/indexcliente')
+def cliente_dashboard():
+    if 'role' in session and session['role'] == 'cliente':
+        return render_template('cliente_dashboard.html')
+    else:
+        return redirect(url_for('login'))
+
 # Painel do Administrador
-@app.route('/admin_dashboard')
+
+@app.route('/indexadmin')
 def admin_dashboard():
     if 'role' in session and session['role'] == 'admin':
         return render_template('admin_dashboard.html')
     else:
         return redirect(url_for('login'))
 
-# Painel do Cliente
-@app.route('/cliente_dashboard')
-def cliente_dashboard():
-    if 'role' in session and session['role'] == 'cliente':
-        return render_template('cliente_dashboard.html')
+@app.route('/gerenciamentoagendamento')
+def gerenciamento_agendamento():
+    if 'role' in session and session['role'] == 'admin':
+        # Aqui você pode adicionar lógica para exibir e gerenciar agendamentos
+        return render_template('gerenciamento_agendamento.html')
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/gerenciamentoequipe')
+def gerenciamento_equipe():
+    if 'role' in session and session['role'] == 'admin':
+        # Aqui você pode adicionar lógica para gerenciar os membros da equipe
+        return render_template('gerenciamento_equipe.html')
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/gerenciamentousuarios')
+def gerenciamento_usuarios():
+    if 'role' in session and session['role'] == 'admin':
+        # Aqui você pode adicionar lógica para gerenciar usuários
+        return render_template('gerenciamento_usuarios.html')
     else:
         return redirect(url_for('login'))
 
