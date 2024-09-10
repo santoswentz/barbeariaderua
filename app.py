@@ -3,7 +3,7 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_aqui'
+app.secret_key = ''
 
 # Função para conectar ao banco de dados
 def get_db_connection():
@@ -39,6 +39,10 @@ def get_user_by_email(email):
     user = conn.execute("SELECT * FROM Users WHERE email = ?", (email,)).fetchone()
     conn.close()
     return user
+# Rota para INDEX
+@app.route('/index.html')
+def index():
+    return render_template('index.html')
 
 # Rota de registro de usuário
 @app.route('/register', methods=['GET', 'POST'])
