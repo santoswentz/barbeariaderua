@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Equipe</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>Gerenciamento de Equipe</h2>
+
+    <!-- Formulário para Adicionar Novo Membro da Equipe -->
+    <h3>Adicionar Membro da Equipe</h3>
+    <form action="/gerenciamentoequipe" method="POST">
+        <input type="hidden" name="adicionar">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+        <br>
+        <label for="telefone">Telefone:</label>
+        <input type="text" id="telefone" name="telefone">
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <hr>
+
+    <!-- Lista de Membros da Equipe com Opções de Editar e Excluir -->
+    <h3>Lista de Membros da Equipe</h3>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Data de Admissão</th>
+            <th>Ativo</th>
+            <th>Ações</th>
+        </tr>
+        {% for membro in equipe %}
+        <tr>
+            <form action="/gerenciamentoequipe" method="POST">
+                <input type="hidden" name="equipe_id" value="{{ membro.equipe_id }}">
+                <td>{{ membro.equipe_id }}</td>
+                <td>
+                    <input type="text" name="nome" value="{{ membro.nome }}" required>
+                </td>
+                <td>
+                    <input type="text" name="telefone" value="{{ membro.telefone }}">
+                </td>
+                <td>
+                    <input type="email" name="email" value="{{ membro.email }}" required>
+                </td>
+                <td>{{ membro.data_admissao }}</td>
+                <td>
+                    <input type="checkbox" name="ativo" {% if membro.ativo == 1 %}checked{% endif %}>
+                </td>
+                <td>
+                    <button type="submit" name="editar">Salvar</button>
+                    <a href="?excluir={{ membro.equipe_id }}" onclick="return confirm('Tem certeza que deseja excluir este membro da equipe?');">Excluir</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/indexadmin">Voltar ao Painel de Administração</a>
+</body>
+</html>

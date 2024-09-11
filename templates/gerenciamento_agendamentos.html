@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Agendamentos</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>Gerenciamento de Agendamentos</h2>
+
+    <!-- Formulário para Adicionar Novo Agendamento -->
+    <h3>Adicionar Agendamento</h3>
+    <form action="/gerenciamentoagendamento" method="POST">
+        <input type="hidden" name="adicionar">
+        <label for="user_id">Usuário:</label>
+        <select id="user_id" name="user_id" required>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.user_id }}">{{ usuario.nome }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="equipe_id">Equipe:</label>
+        <select id="equipe_id" name="equipe_id" required>
+            {% for membro in equipe %}
+                <option value="{{ membro.equipe_id }}">{{ membro.nome }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="servicos_id">Serviço:</label>
+        <select id="servicos_id" name="servicos_id" required>
+            {% for servico in servicos %}
+                <option value="{{ servico.servicos_id }}">{{ servico.nome }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="data_hora">Data e Hora:</label>
+        <input type="datetime-local" id="data_hora" name="data_hora" required>
+        <br>
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="agendado">Agendado</option>
+            <option value="concluído">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+        </select>
+        <br>
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <hr>
+
+    <!-- Lista de Agendamentos com Opções de Editar e Excluir -->
+    <h3>Lista de Agendamentos</h3>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Usuário</th>
+            <th>Equipe</th>
+            <th>Serviço</th>
+            <th>Data e Hora</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+        {% for agendamento in agendamentos %}
+        <tr>
+            <form action="/gerenciamentoagendamento" method="POST">
+                <input type="hidden" name="agendamento_id" value="{{ agendamento.agendamento_id }}">
+                <td>{{ agendamento.agendamento_id }}</td>
+                <td>
+                    <select name="user_id" required>
+                        {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}" {% if usuario.user_id == agendamento.user_id %}selected{% endif %}>{{ usuario.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="equipe_id" required>
+                        {% for membro in equipe %}
+                            <option value="{{ membro.equipe_id }}" {% if membro.equipe_id == agendamento.equipe_id %}selected{% endif %}>{{ membro.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="servicos_id" required>
+                        {% for servico in servicos %}
+                            <option value="{{ servico.servicos_id }}" {% if servico.servicos_id == agendamento.servicos_id %}selected{% endif %}>{{ servico.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input type="datetime-local" name="data_hora" value="{{ agendamento.data_hora }}" required>
+                </td>
+                <td>
+                    <select name="status" required>
+                        <option value="agendado" {% if agendamento.status == 'agendado' %}selected{% endif %}>Agendado</option>
+                        <option value="concluído" {% if agendamento.status == 'concluído' %}selected{% endif %}>Concluído</option>
+                        <option value="cancelado" {% if agendamento.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="submit" name="editar">Salvar</button>
+                    <a href="?excluir={{ agendamento.agendamento_id }}" onclick="return confirm('Tem certeza que deseja excluir este agendamento?');">Excluir</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/indexadmin">Voltar ao Painel de Administração</a>
+</body>
+</html>

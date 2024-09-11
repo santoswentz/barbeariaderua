@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, redirect, render_template, url_for, request, flash, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -16,22 +16,58 @@ def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    #  Usuários
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS Users (
-        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        senha TEXT NOT NULL,
-        telefone TEXT,
-        role TEXT NOT NULL CHECK (role IN ('admin', 'cliente')),
-        data_criacao TEXT DEFAULT (datetime('now')),
-        ultimo_login TEXT
-    )
+
+# Inicializa o banco de dados (cria as tabelas se não existirem)
+def init_db():
+    conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS Users (
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            senha TEXT NOT NULL,
+            telefone TEXT,
+            role TEXT NOT NULL CHECK (role IN ('admin', 'cliente')),
+            data_criacao TEXT DEFAULT (datetime('now')),
+            ultimo_login TEXT
+)
+''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS Equipe (
+            equipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            telefone TEXT,
+            email TEXT UNIQUE,
+            data_admissao TEXT DEFAULT (datetime('now')),
+            ativo INTEGER DEFAULT 1
+        );
     ''')
-    
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS Servicos (
+            servicos_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            descricao TEXT,
+            preco REAL NOT NULL
+        );
+    ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS Agendamentos (
+            agendamento_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            equipe_id INTEGER,
+            servicos_id INTEGER,
+            data_hora TEXT NOT NULL,
+            status TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES Users(user_id),
+            FOREIGN KEY (equipe_id) REFERENCES Equipe(equipe_id),
+            FOREIGN KEY (servicos_id) REFERENCES Servicos(servicos_id)
+        );
+    ''')
     conn.commit()
     conn.close()
+
+# Chame init_db() para garantir que as tabelas existem
+init_db()
 
 # obter o usuário pelo e-mail
 def get_user_by_email(email):
@@ -97,6 +133,11 @@ def login():
     return render_template('login.html')
 
 
+# Rota para logout
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 # Painel do Cliente
 @app.route('/indexcliente')
@@ -106,8 +147,8 @@ def cliente_dashboard():
     else:
         return redirect(url_for('login'))
 
-# Painel do Administrador
 
+# Painel do Adm
 @app.route('/indexadmin')
 def admin_dashboard():
     if 'role' in session and session['role'] == 'admin':
@@ -115,35 +156,210 @@ def admin_dashboard():
     else:
         return redirect(url_for('login'))
 
-@app.route('/gerenciamentoagendamento')
-def gerenciamento_agendamento():
-    if 'role' in session and session['role'] == 'admin':
-        # Aqui você pode adicionar lógica para exibir e gerenciar agendamentos
-        return render_template('gerenciamento_agendamento.html')
-    else:
-        return redirect(url_for('login'))
+# Rota para gerenciamento de agendamentos
+@app.route('/gerenciamentoagendamento', methods=['GET', 'POST'])
+def gerenciar_agendamentos():
+    conn = get_db_connection()
 
-@app.route('/gerenciamentoequipe')
-def gerenciamento_equipe():
-    if 'role' in session and session['role'] == 'admin':
-        # Aqui você pode adicionar lógica para gerenciar os membros da equipe
-        return render_template('gerenciamento_equipe.html')
-    else:
-        return redirect(url_for('login'))
+    if request.method == 'POST':
+        if 'adicionar' in request.form:
+            user_id = request.form['user_id']
+            equipe_id = request.form['equipe_id']
+            servicos_id = request.form['servicos_id']
+            data_hora = request.form['data_hora']
+            status = request.form['status']
+            print(f"Adicionando agendamento: user_id={user_id}, equipe_id={equipe_id}, servicos_id={servicos_id}, data_hora={data_hora}, status={status}")  # Debug
 
-@app.route('/gerenciamentousuarios')
-def gerenciamento_usuarios():
-    if 'role' in session and session['role'] == 'admin':
-        # Aqui você pode adicionar lógica para gerenciar usuários
-        return render_template('gerenciamento_usuarios.html')
-    else:
-        return redirect(url_for('login'))
+            conn.execute('INSERT INTO Agendamentos (user_id, equipe_id, servicos_id, data_hora, status) VALUES (?, ?, ?, ?, ?)',
+                         (user_id, equipe_id, servicos_id, data_hora, status))
+            conn.commit()
+            flash('Agendamento adicionado com sucesso!')
 
-# Rota para logout
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
+        elif 'editar' in request.form:
+            agendamento_id = request.form['agendamento_id']
+            user_id = request.form['user_id']
+            equipe_id = request.form['equipe_id']
+            servicos_id = request.form['servicos_id']
+            data_hora = request.form['data_hora']
+            status = request.form['status']
+            print(f"Editando agendamento agendamento_id={agendamento_id}, user_id={user_id}, equipe_id={equipe_id}, servicos_id={servicos_id}, data_hora={data_hora}, status={status}")  # Debug
+            
+            conn.execute('UPDATE Agendamentos SET user_id = ?, equipe_id = ?, servicos_id = ?, data_hora = ?, status = ? WHERE agendamento_id = ?',
+                         (user_id, equipe_id, servicos_id, data_hora, status, agendamento_id))
+            conn.commit()
+            flash('Agendamento atualizado com sucesso!')
+
+    if request.args.get('excluir'):
+        agendamento_id = request.args.get('excluir')
+        print(f"Excluindo agendamento agendamento_id={agendamento_id}")  # Debug
+        conn.execute('DELETE FROM Agendamentos WHERE agendamento_id = ?', (agendamento_id,))
+        conn.commit()
+        flash('Agendamento excluído com sucesso!')
+
+    # Obter lista de agendamentos e outras informações necessárias
+    agendamentos = conn.execute('SELECT * FROM Agendamentos').fetchall()
+    usuarios = conn.execute('SELECT user_id, nome FROM Users').fetchall()
+    equipe = conn.execute('SELECT equipe_id, nome FROM Equipe').fetchall()
+    servicos = conn.execute('SELECT servicos_id, nome FROM Servicos').fetchall()
+    conn.close()
+
+    return render_template('gerenciamento_agendamentos.html', agendamentos=agendamentos, usuarios=usuarios, equipe=equipe, servicos=servicos)
+
+
+
+# CRUD gerenciamento de equipe
+@app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
+def gerenciar_equipe():
+    conn = get_db_connection()
+
+    if request.method == 'POST':
+        if 'adicionar' in request.form:
+            nome = request.form['nome']
+            telefone = request.form['telefone']
+            email = request.form['email']
+            print(f"Adicionando membro da equipe: {nome}, {telefone}, {email}")  # Debug
+
+            try:
+                conn.execute('INSERT INTO Equipe (nome, telefone, email) VALUES (?, ?, ?)',
+                             (nome, telefone, email))
+                conn.commit()
+                flash('Membro da equipe adicionado com sucesso!')
+            except sqlite3.IntegrityError as e:
+                print(f"Erro ao adicionar: {e}")  # Debug
+                flash('Erro: Email já está em uso.')
+
+        elif 'editar' in request.form:
+            equipe_id = request.form['equipe_id']
+            nome = request.form['nome']
+            telefone = request.form['telefone']
+            email = request.form['email']
+            ativo = 1 if 'ativo' in request.form else 0
+            print(f"Editando membro da equipe equipe_id: {equipe_id}, Nome: {nome}, Telefone: {telefone}, Email: {email}, Ativo: {ativo}")  # Debug
+            
+            conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, ativo = ? WHERE equipe_id = ?',
+                         (nome, telefone, email, ativo, equipe_id))
+            conn.commit()
+            flash('Membro da equipe atualizado com sucesso!')
+
+    if request.args.get('excluir'):
+        equipe_id = request.args.get('excluir')
+        print(f"Excluindo membro da equipe equipe_id: {equipe_id}")  # Debug
+        conn.execute('DELETE FROM Equipe WHERE equipe_id = ?', (equipe_id,))
+        conn.commit()
+        flash('Membro da equipe excluído com sucesso!')
+
+    equipe = conn.execute('SELECT * FROM Equipe').fetchall()
+    conn.close()
+
+    return render_template('gerenciamento_equipe.html', equipe=equipe)
+
+
+
+# CRUD de usuários
+@app.route('/gerenciamentousuarios', methods=['GET', 'POST'])
+def gerenciar_usuarios():
+    conn = get_db_connection()
+
+    if request.method == 'POST':
+        # Verifica se é para adicionar ou editar usuário
+        if 'adicionar' in request.form:
+            nome = request.form['nome']
+            email = request.form['email']
+            senha = request.form['senha']
+            telefone = request.form['telefone']
+            role = request.form['role']
+            print(f"Adicionando usuário: {nome}, {email}, {senha}, {telefone}, {role}")  # Debug
+
+            # Adicionar um novo usuário 
+            try:
+                conn.execute('INSERT INTO Users (nome, email, senha, telefone, role) VALUES (?, ?, ?, ?, ?)',
+                             (nome, email, senha, telefone, role))
+                conn.commit()
+                flash('Usuário adicionado com sucesso!')
+            except sqlite3.IntegrityError as e:
+                print(f"Erro ao adicionar: {e}")  # Debug
+                flash('Erro: Email já está em uso.')
+
+        elif 'editar' in request.form:
+            # Editar um usuário existente 
+            user_id = request.form['user_id']
+            nome = request.form['nome']
+            email = request.form['email']
+            senha = request.form['senha']
+            telefone = request.form['telefone']
+            role = request.form['role']
+            print(f"Editando usuário user_id: {user_id}, Nome: {nome}, Email: {email}, Senha: {senha}, Telefone: {telefone}, Função: {role}")  # Debug
+            
+            conn.execute('UPDATE Users SET nome = ?, email = ?, senha = ?, telefone = ?, role = ? WHERE user_id = ?',
+                         (nome, email, senha, telefone, role, user_id))
+            conn.commit()
+            flash('Usuário atualizado com sucesso!')
+
+    # Excluir usuário (usando query params)
+    if request.args.get('excluir'):
+        user_id = request.args.get('excluir')
+        print(f"Excluindo usuário user_id: {user_id}")  # Debug
+        conn.execute('DELETE FROM Users WHERE user_id = ?', (user_id,))
+        conn.commit()
+        flash('Usuário excluído com sucesso!')
+
+    # Obter a lista de usuários 'Users'
+    usuarios = conn.execute('SELECT * FROM Users').fetchall()
+    conn.close()
+
+    return render_template('gerenciamento_usuarios.html', usuarios=usuarios)
+
+
+# CRUD serviços
+
+@app.route('/gerenciamentoservicos', methods=['GET', 'POST'])
+def gerenciar_servicos():
+    conn = get_db_connection()
+
+    if request.method == 'POST':
+        if 'adicionar' in request.form:
+            nome = request.form['nome']
+            descricao = request.form['descricao']
+            preco = request.form['preco']
+            duracao = request.form['duracao']
+            print(f"Adicionando serviço: nome={nome}, descricao={descricao}, preco={preco}, duracao={duracao}")  # Debug
+
+            try:
+                conn.execute('INSERT INTO Servicos (nome, descricao, preco, duracao) VALUES (?, ?, ?, ?)',
+                             (nome, descricao, preco, duracao))
+                conn.commit()
+                flash('Serviço adicionado com sucesso!')
+            except sqlite3.IntegrityError as e:
+                print(f"Erro ao adicionar: {e}")  # Debug
+                flash('Erro ao adicionar o serviço.')
+
+        elif 'editar' in request.form:
+            servicos_id = request.form['servicos_id']
+            nome = request.form['nome']
+            descricao = request.form['descricao']
+            preco = request.form['preco']
+            duracao = request.form['duracao']
+            print(f"Editando serviço servicos_id={servicos_id}, nome={nome}, descricao={descricao}, preco={preco}, duracao={duracao}")  # Debug
+            
+            conn.execute('UPDATE Servicos SET nome = ?, descricao = ?, preco = ?, duracao = ? WHERE servicos_id = ?',
+                         (nome, descricao, preco, duracao, servicos_id))
+            conn.commit()
+            flash('Serviço atualizado com sucesso!')
+
+    if request.args.get('excluir'):
+        servicos_id = request.args.get('excluir')
+        print(f"Excluindo serviço servicos_id={servicos_id}")  # Debug
+        conn.execute('DELETE FROM Servicos WHERE servicos_id = ?', (servicos_id,))
+        conn.commit()
+        flash('Serviço excluído com sucesso!')
+
+    servicos = conn.execute('SELECT * FROM Servicos').fetchall()
+    conn.close()
+
+    return render_template('gerenciamento_servicos.html', servicos=servicos)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 if __name__ == '__main__':
     create_tables()  # Criação das tabelas na inicialização
