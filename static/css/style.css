@@ -34,7 +34,7 @@ html{
     flex-direction: row-reverse;
 }
 .background1{
-    background-image: linear-gradient(rgba(0,0,0,9),transparent), url('/img/barbearialogo.jpg');
+    background-image: linear-gradient(rgba(0,0,0,9),transparent), url('../img/barbearialogo.jpg');
     background-size:cover;
     background-position: center;
     width: 100%;
@@ -83,7 +83,7 @@ nav ul{
     flex-wrap: wrap;
     flex-direction: row;
 }
-nav ul li{
+nav li{
     list-style: none;
     margin: 10px 20px;
     text-align: left;
@@ -107,6 +107,12 @@ nav  a:after{
 }
 nav a:hover::after{
     width: 65%;
+}
+nav .tiraanimacao a:after {
+    all: unset;
+}
+nav .tiraanimacao a{
+    cursor: auto;
 }
 #loginicone{
     position: fixed;
@@ -221,9 +227,169 @@ nav a:hover::after{
 
 
 
+
+
+
 /*Equipe*/
 .background2{
     background-color: var(--cor-principal);
     width: 100%;
-    height: 100vh;
+    height: min-content(100vh);
+}
+.tituloequipe{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.tituloequipe h1{
+    font-size: 7vh;
+}
+.juntartd{
+    display: flex;
+    flex-direction: row;
+}
+.variosbarbeiros{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+}
+.variosbarbeiros #img1{
+    height: 250px;
+    width: 200px;
+    bottom: 25px;
+    left: 10vh;
+    position: relative;
+}
+.variosbarbeiros #img2{
+    height: 250px;
+    right: 10vh;
+    bottom: 25px;
+    position: relative;
+}
+
+.caixaprincipalbarbeiro{
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+    height: 200px;
+    width: 22vw;
+}
+
+@media (max-width: 1400px) {
+    .caixaprincipalbarbeiro{
+        width: 40vw;
+    }
+}
+@media (max-width: 934px) {
+    .caixaprincipalbarbeiro{
+        width: 50vw;
+    }
+}
+@media (max-width: 634px) {
+    .caixaprincipalbarbeiro{
+        width: 60vw;
+    }
+}
+.imgbarbeiro{
+    height: 150px;
+    background-color: var(--bordas);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nomedobarbeiro{
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+footer {
+    background-color: #333;
+    padding: 20px 20px 0px 20px;
+    color: #f9f9f9;
+  }
+  
+  footer .container {
+    all: unset;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 0px 20px;;
+ }
+  
+ footer .row {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: space-between;
+ }
+ 
+ footer .col-md-4 {
+    height: fit-content;
+   margin: 20px;
+ }
+  
+ footer h5 {
+   margin-top: 0;
+   padding-bottom: 10px;
+ }
+ 
+ footer ul {
+   list-style: none;
+   padding: 0;
+   margin: 0;
+ }
+ 
+ footer li {
+   margin-bottom: 10px;
+ }
+  
+ footer a {
+   color: #337ab7;
+   text-decoration: none;
+ }
+ 
+ footer a:hover {
+   color: #23527c;
+ }
+ 
+ footer i {
+   margin-right: 10px;
+ }
+ 
+ @media (max-width: 768px) {
+  .col-md-4 {
+   flex-basis: 100%;
+   margin: 20px 0;
+  }
+}
+
+/*index2*/
+.index2{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 90vh;
+}
+.index2 nav{
+    all: unset;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.index2 a{
+    color: black !important;
+    font-size: 4vw;
+}
+.index2 nav ul{
+    flex-direction: column;
+}
+.index2 .logofixado{
+    position: fixed !important;
+    top: 20px;
+    left: 20px;
+    font-size:large;
 }

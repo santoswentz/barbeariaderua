@@ -11,7 +11,7 @@
     <!-------navbar e escrita--------->
     <div class="background1">
         <nav>
-            <a href="index.html"><img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" class="logo"></a>
+            <a href="index.html"><img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" class="logo "></a>
             <a href="/login" id="loginicone">Login</a>
             <ul>
                 <li><a href="">Agendamento</a></li>
@@ -31,7 +31,7 @@
 
     <!-------localização------->
     <section class="container parallax1" id="centralizardiveimg">
-        <img src="img/png-transparent-barbershop-sign (1).png" alt="" id="img1">
+        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
         <div class="localizacao">
             <h1>Serviços</h1>
             <div class="precos">
@@ -63,20 +63,73 @@
                   </table>
             </div>
         </div>
-        <img src="img/png-transparent-barbershop-sign (1).png" alt="" id="img2">
+        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
     </section>
     <div class="separadordecontainer"></div>
 
     <!--equipe-->
 
     <div class="background2">
-      <h1>Equipe</h1>
-      <h2>de rua</h2>
+      <div class="tituloequipe">
+        <h1>Equipe</h1>
+        <h2>de rua</h2>
+      </div>
+      <div class="variosbarbeiros">
+
+
+        <div class="juntartd">
+        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
+        <div class="caixaprincipalbarbeiro">
+          <div class="imgbarbeiro">
+            <p>imagem do barbeiro</p>
+          </div>
+          <div class="nomedobarbeiro">
+            <p>nome dos guri</p>
+          </div>
+        </div> 
+        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+        </div>
+        
+          <div class="juntartd">
+            <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
+            <div class="caixaprincipalbarbeiro">
+              <div class="imgbarbeiro">
+                <p>imagem do barbeiro</p>
+              </div>
+              <div class="nomedobarbeiro">
+                <p>nome dos guri</p>
+              </div>
+            </div> 
+            <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+            </div>
+
+            
+      </div>
+
     </div>
 
     <!--Sobre-Nós-->
-    <section class="">
-
-    </section>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <h5>Redes Sociais</h5>
+            <ul>
+              <li><a href="#" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+              <li><a href="#" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+              <li><a href="#" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h5>Localização</h5>
+            <p><i class="fas fa-map-marker-alt"></i> Endereço físico da Barbearia: Av. Brasil, 123 - Centro, Cidade, Estado, CEP 12345-678</p>
+          </div>
+          <div class="col-md-4">
+            <h5>E-mail</h5>
+            <p><i class="fas fa-envelope"></i> barbeariaderua@gmail.com.br</p>
+          </div>
+        </div>
+      </div>
+    </footer>
 </body>
 </html>

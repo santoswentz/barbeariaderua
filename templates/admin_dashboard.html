@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Painel do Administrador</title>
 </head>
-<body>
+<body class="index2"></body>
+        <a href="/"><p class="logofixado logo"> Sair </p></a>
     <nav>
-        <a href="/indexadmin"><img src="img/png-transparent-barbershop-sign (1).png" alt="" class="logo"></a>
-            <li id="/"><a href="/">Sair</a></li>
+            <li class="tiraanimacao"><a  href="/">Gerenciamento de</a></li>
         <ul>
             <li><a href="/gerenciamentoagendamento">Agendamento</a></li>
             <li><a href="/gerenciamentoequipe">Equipe</a></li>
-            <li><a href="/gerenciamentousuarios">Usuarios</a></li>
-            <li><a href="/gerenciamentoservicos">Servicos</a></li>
+            <li><a href="/gerenciamentousuarios">Usuários</a></li>
+            <li><a href="/gerenciamentoservicos">Serviços</a></li>
         </ul>
     </nav>
-    <h2>Bem-vindo, Administrador!</h2>
     
 </body>
 </html>

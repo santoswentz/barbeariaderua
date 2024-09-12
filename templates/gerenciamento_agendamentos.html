@@ -13,7 +13,7 @@
     <h3>Adicionar Agendamento</h3>
     <form action="/gerenciamentoagendamento" method="POST">
         <input type="hidden" name="adicionar">
-        <label for="user_id">Usuário:</label>
+        <label for="user_id">Nome:</label>
         <select id="user_id" name="user_id" required>
             {% for usuario in usuarios %}
                 <option value="{{ usuario.user_id }}">{{ usuario.nome }}</option>
@@ -54,7 +54,7 @@
     <table border="1">
         <tr>
             <th>ID</th>
-            <th>Usuário</th>
+            <th>Nome</th>
             <th>Equipe</th>
             <th>Serviço</th>
             <th>Data e Hora</th>

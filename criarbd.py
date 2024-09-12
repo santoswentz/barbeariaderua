@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS Equipe (
     email TEXT UNIQUE,
     data_admissao TEXT DEFAULT (datetime('now')),
     ativo INTEGER DEFAULT 1
+    imagem_url TEXT  -- Nova coluna para armazenar o caminho da imagem
 )
 ''')
 
