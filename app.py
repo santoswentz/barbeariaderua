@@ -1,6 +1,8 @@
 from flask import Flask, redirect, render_template, url_for, request, flash, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+from io import BytesIO
+
 
 app = Flask(__name__)
 app.secret_key = 'Chave_ultraSecreta'
@@ -15,7 +17,8 @@ def get_db_connection():
 def create_tables():
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+        
+
 
 # Inicializa o banco de dados (cria as tabelas se não existirem)
 def init_db():
@@ -33,13 +36,14 @@ def init_db():
 )
 ''')
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS Equipe (
+            CREATE TABLE IF NOT EXISTS Equipe (
             equipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             telefone TEXT,
             email TEXT UNIQUE,
             data_admissao TEXT DEFAULT (datetime('now')),
-            ativo INTEGER DEFAULT 1
+            ativo INTEGER DEFAULT 1,
+            imagem BLOB  -- Nova coluna para armazenar o caminho da imagem
         );
     ''')
     conn.execute('''
@@ -47,7 +51,8 @@ def init_db():
             servicos_id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             descricao TEXT,
-            preco REAL NOT NULL
+            preco REAL NOT NULL,
+            duracao INTEGER  -- duração em minutos
         );
     ''')
     conn.execute('''
@@ -114,6 +119,7 @@ def register():
 # Rota de login 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
@@ -155,6 +161,7 @@ def admin_dashboard():
         return render_template('admin_dashboard.html')
     else:
         return redirect(url_for('login'))
+
 
 # Rota para gerenciamento de agendamentos
 @app.route('/gerenciamentoagendamento', methods=['GET', 'POST'])
@@ -209,6 +216,7 @@ def gerenciar_agendamentos():
 
 # CRUD gerenciamento de equipe
 @app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
+
 def gerenciar_equipe():
     conn = get_db_connection()
 
@@ -217,11 +225,15 @@ def gerenciar_equipe():
             nome = request.form['nome']
             telefone = request.form['telefone']
             email = request.form['email']
-            print(f"Adicionando membro da equipe: {nome}, {telefone}, {email}")  # Debug
+            imagem = request.files.get('imagem')  # Obtém o arquivo de imagem se estiver presente
+
+            imagem_blob = None
+            if imagem:
+                imagem_blob = imagem.read()  # Lê os dados da imagem
 
             try:
-                conn.execute('INSERT INTO Equipe (nome, telefone, email) VALUES (?, ?, ?)',
-                             (nome, telefone, email))
+                conn.execute('INSERT INTO Equipe (nome, telefone, email, imagem) VALUES (?, ?, ?, ?)',
+                             (nome, telefone, email, imagem_blob))
                 conn.commit()
                 flash('Membro da equipe adicionado com sucesso!')
             except sqlite3.IntegrityError as e:
@@ -234,10 +246,14 @@ def gerenciar_equipe():
             telefone = request.form['telefone']
             email = request.form['email']
             ativo = 1 if 'ativo' in request.form else 0
-            print(f"Editando membro da equipe equipe_id: {equipe_id}, Nome: {nome}, Telefone: {telefone}, Email: {email}, Ativo: {ativo}")  # Debug
-            
-            conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, ativo = ? WHERE equipe_id = ?',
-                         (nome, telefone, email, ativo, equipe_id))
+            imagem = request.files.get('imagem')
+
+            imagem_blob = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()['imagem']
+            if imagem:
+                imagem_blob = imagem.read()  # Lê os dados da imagem
+
+            conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, ativo = ?, imagem = ? WHERE equipe_id = ?',
+                         (nome, telefone, email, ativo, imagem_blob, equipe_id))
             conn.commit()
             flash('Membro da equipe atualizado com sucesso!')
 
@@ -248,15 +264,27 @@ def gerenciar_equipe():
         conn.commit()
         flash('Membro da equipe excluído com sucesso!')
 
+        
+
     equipe = conn.execute('SELECT * FROM Equipe').fetchall()
     conn.close()
+    
 
     return render_template('gerenciamento_equipe.html', equipe=equipe)
 
-
-
 # CRUD de usuários
 @app.route('/gerenciamentousuarios', methods=['GET', 'POST'])
+
+@app.route('/imagem/<int:equipe_id>')
+def imagem(equipe_id):
+    conn = get_db_connection()
+    imagem_blob = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()['imagem']
+    conn.close()
+
+    if imagem_blob:
+        return Response(imagem_blob, mimetype='image/jpeg')  # Ajuste o mimetype conforme necessário
+    return 'Imagem não encontrada', 404
+
 def gerenciar_usuarios():
     conn = get_db_connection()
 
@@ -357,9 +385,6 @@ def gerenciar_servicos():
     conn.close()
 
     return render_template('gerenciamento_servicos.html', servicos=servicos)
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 if __name__ == '__main__':
     create_tables()  # Criação das tabelas na inicialização

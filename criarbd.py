@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS Equipe (
     email TEXT UNIQUE,
     data_admissao TEXT DEFAULT (datetime('now')),
     ativo INTEGER DEFAULT 1
-    imagem_url TEXT  -- Nova coluna para armazenar o caminho da imagem
+    imagem_url BLOB  -- Nova coluna para armazenar o caminho da imagem
 )
 ''')
 
@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS Servicos (
     nome TEXT NOT NULL,
     descricao TEXT,
     preco REAL NOT NULL,
-    duracao INTEGER NOT NULL  -- duração em minutos
+    duracao INTEGER  -- duração em minutos
 )
 ''')
 
 # Criação da tabela Agendamentos
 cursor.execute('''
-CREATE TABLE IF NOT EXISTS Agendamento (
+CREATE TABLE IF NOT EXISTS Agendamentos (
     agendamento_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     equipe_id INTEGER,
