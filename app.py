@@ -81,6 +81,39 @@ def get_user_by_email(email):
     conn.close()
     return user
 
+@app.route('/imagem/<int:equipe_id>')
+def imagem(equipe_id):
+    conn = get_db_connection()
+    imagem_blob = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()['imagem']
+    conn.close()
+
+    if imagem_blob:
+        return Response(imagem_blob, mimetype='image/jpeg')  # Ajuste o mimetype conforme necessário
+    return 'Imagem não encontrada', 404
+
+# Rota de login 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    
+    if request.method == 'POST':
+        email = request.form['email']
+        senha = request.form['senha']
+        
+        user = get_user_by_email(email)
+        
+        if user and check_password_hash(user['senha'], senha):
+            session['user_id'] = user['user_id']
+            session['role'] = user['role']
+            if user['role'] == 'admin':
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('cliente_dashboard'))
+        else:
+            return "Credenciais inválidas"
+    
+    return render_template('login.html')
+
+
 
 # Rota para INDEX
 @app.route('/')
@@ -115,29 +148,6 @@ def register():
             conn.close()
     
     return render_template('register.html')
-
-# Rota de login 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    
-    if request.method == 'POST':
-        email = request.form['email']
-        senha = request.form['senha']
-        
-        user = get_user_by_email(email)
-        
-        if user and check_password_hash(user['senha'], senha):
-            session['user_id'] = user['user_id']
-            session['role'] = user['role']
-            if user['role'] == 'admin':
-                return redirect(url_for('admin_dashboard'))
-            else:
-                return redirect(url_for('cliente_dashboard'))
-        else:
-            return "Credenciais inválidas"
-    
-    return render_template('login.html')
-
 
 # Rota para logout
 @app.route('/logout')
@@ -275,16 +285,6 @@ def gerenciar_equipe():
 # CRUD de usuários
 @app.route('/gerenciamentousuarios', methods=['GET', 'POST'])
 
-@app.route('/imagem/<int:equipe_id>')
-def imagem(equipe_id):
-    conn = get_db_connection()
-    imagem_blob = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()['imagem']
-    conn.close()
-
-    if imagem_blob:
-        return Response(imagem_blob, mimetype='image/jpeg')  # Ajuste o mimetype conforme necessário
-    return 'Imagem não encontrada', 404
-
 def gerenciar_usuarios():
     conn = get_db_connection()
 
@@ -300,8 +300,9 @@ def gerenciar_usuarios():
 
             # Adicionar um novo usuário 
             try:
+                senha_hashed = generate_password_hash(senha)
                 conn.execute('INSERT INTO Users (nome, email, senha, telefone, role) VALUES (?, ?, ?, ?, ?)',
-                             (nome, email, senha, telefone, role))
+                             (nome, email, senha_hashed, telefone, role))
                 conn.commit()
                 flash('Usuário adicionado com sucesso!')
             except sqlite3.IntegrityError as e:
@@ -316,6 +317,7 @@ def gerenciar_usuarios():
             senha = request.form['senha']
             telefone = request.form['telefone']
             role = request.form['role']
+            senha_hashed = generate_password_hash(senha)
             print(f"Editando usuário user_id: {user_id}, Nome: {nome}, Email: {email}, Senha: {senha}, Telefone: {telefone}, Função: {role}")  # Debug
             
             conn.execute('UPDATE Users SET nome = ?, email = ?, senha = ?, telefone = ?, role = ? WHERE user_id = ?',
