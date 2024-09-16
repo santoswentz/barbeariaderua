@@ -6,28 +6,33 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Registro</title>
 </head>
-<body>
-    <h2>Registrar</h2>
-    <form action="/register" method="post">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-        <br>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="senha">Senha:</label>
-        <input type="password" id="senha" name="senha" required>
-        <br>
-        <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone">
-        <br>
-        <label for="role">Tipo de Conta:</label>
-        <select id="role" name="role">
-            <option value="cliente">Cliente</option>
-            <option value="admin">Administrador</option>
-        </select>
-        <br>
-        <button type="submit">Registrar</button>
-    </form>
+<body class="index2 ">
+    <a href="/"><p class="logofixado logo"> Sair </p></a>
+    
+    <div class="logins">
+        <h2>Registrar</h2>
+        <form action="/register" method="post">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            <br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <br>
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required>
+            <br>
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone">
+            <br>
+            <label for="role">Tipo de Conta:</label>
+            <select id="role" name="role">
+                <option value="cliente">Cliente</option>
+                <option value="admin">Administrador</option>
+            </select>
+            <br>
+            <button type="submit">Registrar</button>
+        </form>
+    </div>
+    
 </body>
 </html>

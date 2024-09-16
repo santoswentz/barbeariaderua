@@ -3,6 +3,7 @@
     --cor-principal: #6b0002; /*  Define a variável de cor --cor-primaria com o valor #*****  */
     --cor-secundaria: black;
     --cor-terciaria: #fafafa;
+    --cor-quartenaria: #19c0f3;
     --animações1: #6b0002;
     --bordas: #fff;
   }
@@ -391,5 +392,84 @@ footer {
     position: fixed !important;
     top: 20px;
     left: 20px;
+}
+.index2 p{
     font-size:large;
+}
+
+/* Estilo geral do formulário */
+.logins {
+    background-color: #f4f4f9;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
+    max-height: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+.logins form{
+    margin: 30px;
+}
+/* Estilo do título */
+.logins h2 {
+    text-align: center;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.logins label {
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Estilo dos input*/
+.logins input[type="text"],
+.logins input[type="email"],
+.logins input[type="password"],
+.logins select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Estilo do botão */
+.logins button {
+    width: 100%;
+    background-color: var(--cor-quartenaria);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Arial', sans-serif;
+    transition: background-color 0.3s ease;
+}
+.logins button:hover {
+    background-color: #3457f3;
+}
+
+/* Alinhamento dos elementos dentro da .logins */
+.logins input, 
+.logins select, 
+.logins button {
+    margin-top: 5px;
+}
+
+/* Remover quebras de linha dentro da .logins */
+.logins br {
+    display: none;
 }

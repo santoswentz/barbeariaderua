@@ -319,9 +319,10 @@ def gerenciar_usuarios():
             role = request.form['role']
             senha_hashed = generate_password_hash(senha)
             print(f"Editando usuário user_id: {user_id}, Nome: {nome}, Email: {email}, Senha: {senha}, Telefone: {telefone}, Função: {role}")  # Debug
+            senha_hashed = generate_password_hash(senha)
             
             conn.execute('UPDATE Users SET nome = ?, email = ?, senha = ?, telefone = ?, role = ? WHERE user_id = ?',
-                         (nome, email, senha, telefone, role, user_id))
+                         (nome, email, senha_hashed, telefone, role, user_id))
             conn.commit()
             flash('Usuário atualizado com sucesso!')
 
