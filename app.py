@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template, url_for, request, flash, ses
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from io import BytesIO
-
+import datetime
 
 app = Flask(__name__)
 app.secret_key = 'Chave_ultraSecreta'
@@ -171,6 +171,57 @@ def admin_dashboard():
         return render_template('admin_dashboard.html')
     else:
         return redirect(url_for('login'))
+
+#cliente agendar
+
+@app.route('/agendamentocliente', methods=['GET', 'POST'])
+def agendamento_cliente():
+    if 'user_id' not in session:
+        flash('Você precisa estar logado para fazer um agendamento.')
+        return redirect('/login')
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    
+    if request.method == 'POST':
+        equipe_id = request.form['equipe_id']
+        servicos_id = request.form['servicos_id']
+        data_hora = request.form['data_hora']
+        
+        # Validar horário
+        try:
+            data_hora_dt = datetime.datetime.fromisoformat(data_hora)
+            dia_da_semana = data_hora_dt.weekday()
+            hora = data_hora_dt.hour
+            
+            if dia_da_semana == 6:  # Sábado
+                if hora < 13 or hora >= 18:
+                    raise ValueError("O horário de agendamento para sábado deve estar entre 13:00 e 18:00.")
+            elif dia_da_semana == 0:  # Domingo
+                raise ValueError("Não é possível agendar no domingo.")
+            else:  # Segunda a sexta
+                if hora < 9 or hora >= 20:
+                    raise ValueError("O horário de agendamento durante a semana deve estar entre 09:00 e 20:00.")
+            
+            status = 'pendente'  # Status inicial do agendamento
+            
+            conn.execute('''
+                INSERT INTO Agendamentos (user_id, equipe_id, servicos_id, data_hora, status)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (user_id, equipe_id, servicos_id, data_hora, status))
+            
+            conn.commit()
+            flash('Agendamento realizado com sucesso!')
+        except ValueError as e:
+            flash(f'Erro: {e}')
+        except sqlite3.Error as e:
+            flash(f'Erro ao tentar realizar o agendamento: {e}')
+        
+    equipe = conn.execute('SELECT equipe_id, nome FROM Equipe WHERE ativo = 1').fetchall()
+    servicos = conn.execute('SELECT servicos_id, nome FROM Servicos').fetchall()
+    conn.close()
+    
+    return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos)
 
 
 # Rota para gerenciamento de agendamentos

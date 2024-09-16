@@ -389,10 +389,17 @@ footer {
 .index2 nav ul{
     flex-direction: column;
 }
-.index2 .logofixado{
+.logofixado{
     position: fixed !important;
     top: 20px;
     left: 20px;
+}
+.logodireita{
+    all: unset;
+    position: fixed;
+    right: 20px !important;
+    top: 20px;
+    cursor: pointer;
 }
 .index2 p{
     font-size:large;
@@ -405,7 +412,7 @@ footer {
     padding: 20px;
     border-radius: 8px;
     width: 500px;
-    max-height: 600px;
+    max-height: 500px;
     margin: 20px auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -555,7 +562,7 @@ footer {
 }
 
 .gerenciamento a {
-    color: #ff0000;
+    color: var(--animações1);
     text-decoration: none;
 }
 
@@ -564,12 +571,12 @@ footer {
 }
 
 /* Link de voltar */
-.gerenciamento a[href="/indexadmin"] {
+.gerenciamentobody a[href="/indexadmin"] {
     display: inline-block;
     margin-top: 20px;
-    color: #007BFF;
+    color: var(--cor-principal);
 }
 
-.gerenciamento a[href="/indexadmin"]:hover {
+.gerenciamentobody a[href="/indexadmin"]:hover {
     text-decoration: underline;
 }
