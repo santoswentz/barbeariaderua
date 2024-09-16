@@ -7,66 +7,69 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h2>Gerenciamento de Serviços</h2>
+    <div class="gerenciamento">
+        <h2>Gerenciamento de Serviços</h2>
 
-    <!-- Formulário para Adicionar Novo Serviço -->
-    <h3>Adicionar Serviço</h3>
-    <form action="/gerenciamentoservicos" method="POST">
-        <input type="hidden" name="adicionar">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-        <br>
-        <label for="descricao">Descrição:</label>
-        <textarea id="descricao" name="descricao"></textarea>
-        <br>
-        <label for="preco">Preço:</label>
-        <input type="number" id="preco" name="preco" step="0.01" required>
-        <br>
-        <label for="duracao">Duração (minutos):</label>
-        <input type="number" id="duracao" name="duracao">
-        <br>
-        <button type="submit">Adicionar</button>
-    </form>
+        <!-- Formulário para Adicionar Novo Serviço -->
+        <h3>Adicionar Serviço</h3>
+        <form action="/gerenciamentoservicos" method="POST">
+            <input type="hidden" name="adicionar">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            <br>
+            <label for="descricao">Descrição:</label>
+            <textarea id="descricao" name="descricao"></textarea>
+            <br>
+            <label for="preco">Preço:</label>
+            <input type="number" id="preco" name="preco" step="0.01" required>
+            <br>
+            <label for="duracao">Duração (minutos):</label>
+            <input type="number" id="duracao" name="duracao">
+            <br>
+            <button type="submit">Adicionar</button>
+        </form>
 
-    <hr>
+        <hr>
 
-    <!-- Lista de Serviços com Opções de Editar e Excluir -->
-    <h3>Lista de Serviços</h3>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Preço</th>
-            <th>Duração (minutos)</th>
-            <th>Ações</th>
-        </tr>
-        {% for servico in servicos %}
-        <tr>
-            <form action="/gerenciamentoservicos" method="POST">
-                <input type="hidden" name="servicos_id" value="{{ servico.servicos_id }}">
-                <td>{{ servico.servicos_id }}</td>
-                <td>
-                    <input type="text" name="nome" value="{{ servico.nome }}" required>
-                </td>
-                <td>
-                    <textarea name="descricao">{{ servico.descricao }}</textarea>
-                </td>
-                <td>
-                    <input type="number" name="preco" value="{{ servico.preco }}" step="0.01" required>
-                </td>
-                <td>
-                    <input type="number" name="duracao" value="{{ servico.duracao }}" >
-                </td>
-                <td>
-                    <button type="submit" name="editar">Salvar</button>
-                    <a href="?excluir={{ servico.servicos_id }}" onclick="return confirm('Tem certeza que deseja excluir este serviço?');">Excluir</a>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
-    </table>
+        <!-- Lista de Serviços com Opções de Editar e Excluir -->
+        <h3>Lista de Serviços</h3>
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Preço</th>
+                <th>Duração (minutos)</th>
+                <th>Ações</th>
+            </tr>
+            {% for servico in servicos %}
+            <tr>
+                <form action="/gerenciamentoservicos" method="POST">
+                    <input type="hidden" name="servicos_id" value="{{ servico.servicos_id }}">
+                    <td>{{ servico.servicos_id }}</td>
+                    <td>
+                        <input type="text" name="nome" value="{{ servico.nome }}" required>
+                    </td>
+                    <td>
+                        <textarea name="descricao">{{ servico.descricao }}</textarea>
+                    </td>
+                    <td>
+                        <input type="number" name="preco" value="{{ servico.preco }}" step="0.01" required>
+                    </td>
+                    <td>
+                        <input type="number" name="duracao" value="{{ servico.duracao }}" >
+                    </td>
+                    <td>
+                        <button type="submit" name="editar">Salvar</button>
+                        <a href="?excluir={{ servico.servicos_id }}" onclick="return confirm('Tem certeza que deseja excluir este serviço?');">Excluir</a>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </table>
 
-    <a href="/indexadmin">Voltar ao Painel de Administração</a>
+        <a href="/indexadmin">Voltar ao Painel de Administração</a>
+    </div>
 </body>
+
 </html>

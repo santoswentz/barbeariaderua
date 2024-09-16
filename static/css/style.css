@@ -4,6 +4,7 @@
     --cor-secundaria: black;
     --cor-terciaria: #fafafa;
     --cor-quartenaria: #19c0f3;
+    --animacaocor4: #3457f3;
     --animações1: #6b0002;
     --bordas: #fff;
   }
@@ -472,4 +473,103 @@ footer {
 /* Remover quebras de linha dentro da .logins */
 .logins br {
     display: none;
+}
+
+/*gerenciamento*/
+.gerenciamento {
+    /* Estilos globais */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.gerenciamento h2, .gerenciamento h3 {
+    color: #333;
+}
+
+.gerenciamento form {
+    background-color: #fff;
+    padding: 12px 30px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    max-width: 600px;
+}
+
+.gerenciamento label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.gerenciamento input,
+.gerenciamento textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.gerenciamento button {
+    background-color: var(--cor-quartenaria);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.gerenciamento button:hover {
+    background-color: #4984c7;
+}
+
+.gerenciamento table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.gerenciamento table, .gerenciamento th, .gerenciamento td {
+    border: 1px solid #ddd;
+}
+
+.gerenciamento th, .gerenciamento td {
+    padding: 12px;
+    text-align: left;
+}
+
+.gerenciamento th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.gerenciamento td input[type="text"],
+.gerenciamento td input[type="number"],
+.gerenciamento td textarea {
+    width: 95%;
+}
+
+.gerenciamento a {
+    color: #ff0000;
+    text-decoration: none;
+}
+
+.gerenciamento a:hover {
+    text-decoration: underline;
+}
+
+/* Link de voltar */
+.gerenciamento a[href="/indexadmin"] {
+    display: inline-block;
+    margin-top: 20px;
+    color: #007BFF;
+}
+
+.gerenciamento a[href="/indexadmin"]:hover {
+    text-decoration: underline;
 }
