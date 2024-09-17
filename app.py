@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template, url_for, request, flash, ses
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from io import BytesIO
-import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'Chave_ultraSecreta'
@@ -173,7 +173,6 @@ def admin_dashboard():
         return redirect(url_for('login'))
 
 #cliente agendar
-
 @app.route('/agendamentocliente', methods=['GET', 'POST'])
 def agendamento_cliente():
     if 'user_id' not in session:
