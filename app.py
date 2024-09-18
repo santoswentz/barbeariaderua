@@ -301,45 +301,56 @@ def verificar_imagem(equipe_id):
 # gerenciamento de equipe com CRUD completo
 @app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
 def gerenciar_equipe():
-    with get_db_connection() as conn:
-        if request.method == 'POST':
-            if 'adicionar' in request.form:
-                nome = request.form['nome']
-                telefone = request.form['telefone']
-                email = request.form['email']
-                imagem = request.files.get('imagem')
-                imagem_blob = imagem.read() if imagem else None
-                print(f"Imagem adicionada: {imagem_blob}")
-
-                conn.execute('INSERT INTO Equipe (nome, telefone, email, imagem) VALUES (?, ?, ?, ?)',
-                             (nome, telefone, email, imagem_blob))
-                conn.commit()
-                flash('Membro da equipe adicionado com sucesso!')
-
-            elif 'editar' in request.form:
-                equipe_id = request.form['equipe_id']
-                nome = request.form['nome']
-                telefone = request.form['telefone']
-                email = request.form['email']
-                ativo = 1 if 'ativo' in request.form else 0
-                imagem = request.files.get('imagem')
-                imagem_blob = imagem.read() if imagem else None
-                print(f"Imagem editada: {imagem_blob}")
-
-                conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, ativo = ?, imagem = ? WHERE equipe_id = ?',
-                             (nome, telefone, email, ativo, imagem_blob, equipe_id))
-                conn.commit()
-                flash('Membro da equipe atualizado com sucesso!')
-
-        if request.args.get('excluir'):
-            equipe_id = request.args.get('excluir')
-            conn.execute('DELETE FROM Equipe WHERE equipe_id = ?', (equipe_id,))
-            conn.commit()
-            flash('Membro da equipe excluído com sucesso!')
-
-        equipe = conn.execute('SELECT * FROM Equipe').fetchall()
+    conn = get_db_connection()
     
+    if request.method == 'POST':
+        if 'adicionar' in request.form:
+            nome = request.form['nome']
+            telefone = request.form['telefone']
+            email = request.form['email']
+            imagem = request.files.get('imagem')
+            
+            if imagem:
+                imagem = imagem.read()
+            else:
+                imagem = None
+
+            conn.execute('INSERT INTO Equipe (nome, telefone, email, imagem) VALUES (?, ?, ?, ?)',
+                         (nome, telefone, email, imagem))
+            conn.commit()
+            flash('Membro adicionado com sucesso!')
+            return redirect(url_for('gerenciar_equipe'))
+
+        elif 'editar' in request.form:
+            equipe_id = request.form['equipe_id']
+            nome = request.form['nome']
+            telefone = request.form['telefone']
+            email = request.form['email']
+            imagem = request.files.get('imagem')
+
+            if imagem and imagem.filename:
+                imagem = imagem.read()
+                conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, imagem = ? WHERE equipe_id = ?',
+                             (nome, telefone, email, imagem, equipe_id))
+            else:
+                conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ? WHERE equipe_id = ?',
+                             (nome, telefone, email, equipe_id))
+
+            conn.commit()
+            flash('Membro atualizado com sucesso!')
+            return redirect(url_for('gerenciar_equipe'))
+
+    elif request.args.get('excluir'):
+        equipe_id = request.args.get('excluir')
+        conn.execute('DELETE FROM Equipe WHERE equipe_id = ?', (equipe_id,))
+        conn.commit()
+        flash('Membro excluído com sucesso!')
+        return redirect(url_for('gerenciar_equipe'))
+
+    equipe = conn.execute('SELECT * FROM Equipe').fetchall()
+    conn.close()
     return render_template('gerenciamento_equipe.html', equipe=equipe)
+
 
 # CRUD de usuários
 @app.route('/gerenciamentousuarios', methods=['GET', 'POST'])
