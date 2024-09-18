@@ -297,6 +297,7 @@ def verificar_imagem(equipe_id):
                 return send_file(io.BytesIO(imagem_blob), mimetype='image/jpeg')
         return 'Imagem não encontrada', 404
 
+
 # gerenciamento de equipe com CRUD completo
 @app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
 def gerenciar_equipe():

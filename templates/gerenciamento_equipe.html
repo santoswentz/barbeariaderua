@@ -43,7 +43,7 @@
             <th>Email</th>
             <th>Data de Admissão</th>
             <th>Ativo</th>
-            <th>Imagem</th> <!-- Nova coluna para a imagem -->
+            <th>Imagem</th>
             <th>Ações</th>
         </tr>
         {% for membro in equipe %}
@@ -66,12 +66,13 @@
                 </td>
                 <td>
                     {% if membro.imagem %}
-                        <img src="{{ url_for('imagem', equipe_id=membro.equipe_id) }}" alt="Imagem de {{ membro.nome }}" style="width: 100px; height: auto;" alt="Imagem do Membro">
+                        <img src="{{ url_for('verificar_imagem', equipe_id=membro.equipe_id) }}" alt="Imagem do membro" style="max-width: 100px;">
                     {% else %}
-                        em manutenção
+                        <p>Sem imagem</p>
                     {% endif %}
                 </td>
                 <td>
+                    <input type="file" name="imagem" accept="image/*">
                     <button type="submit" name="editar">Salvar</button>
                     <a href="?excluir={{ membro.equipe_id }}" onclick="return confirm('Tem certeza que deseja excluir este membro da equipe?');">Excluir</a>
                 </td>
