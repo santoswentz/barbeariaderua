@@ -82,16 +82,6 @@ def get_user_by_email(email):
     conn.close()
     return user
 
-@app.route('/imagem/<int:equipe_id>')
-def imagem(equipe_id):
-    conn = get_db_connection()
-    imagem_blob = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()['imagem']
-    conn.close()
-
-    if imagem_blob:
-        return Response(imagem_blob, mimetype='image/jpeg')  # Ajuste o mimetype conforme necessário
-    return 'Imagem não encontrada', 404
-
 # Rota de login 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
