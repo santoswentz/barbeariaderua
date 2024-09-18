@@ -157,9 +157,10 @@ def cliente_dashboard():
     if 'role' in session and session['role'] == 'cliente':
         conn = get_db_connection()
         servicos = conn.execute('SELECT nome, preco FROM Servicos').fetchall()
+        barbeiros = conn.execute('SELECT equipe_id, nome, imagem FROM Equipe WHERE ativo = 1').fetchall()
         conn.close()
 
-        return render_template('cliente_dashboard.html', servicos=servicos)
+        return render_template('cliente_dashboard.html', servicos=servicos, barbeiros=barbeiros)
     else:
         return redirect(url_for('login'))
 

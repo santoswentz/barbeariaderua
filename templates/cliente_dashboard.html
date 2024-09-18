@@ -56,36 +56,26 @@
         <h2>de rua</h2>
       </div>
       <div class="variosbarbeiros">
-
-
+        <!-- Loop para criar uma div "juntartd" para cada barbeiro -->
+        {% for barbeiro in barbeiros %}
         <div class="juntartd">
-        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
-        <div class="caixaprincipalbarbeiro">
-          <div class="imgbarbeiro">
-            <p>imagem do barbeiro</p>
-          </div>
-          <div class="nomedobarbeiro">
-            <p>nome dos guri</p>
-          </div>
-        </div> 
-        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
-        </div>
-        
-          <div class="juntartd">
-            <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
+            <img src="{{ url_for('static', filename='img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
             <div class="caixaprincipalbarbeiro">
-              <div class="imgbarbeiro">
-                <p>imagem do barbeiro</p>
-              </div>
-              <div class="nomedobarbeiro">
-                <p>nome dos guri</p>
-              </div>
-            </div> 
-            <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+                <div class="imgbarbeiro">
+                    {% if barbeiro.imagem %}
+                        <img src="{{ url_for('verificar_imagem', equipe_id=barbeiro.equipe_id) }}" alt="Imagem do barbeiro" style="max-width: 100px;">
+                    {% else %}
+                        <p>Imagem não disponível</p>
+                    {% endif %}
+                </div>
+                <div class="nomedobarbeiro">
+                    <p>{{ barbeiro.nome }}</p>
+                </div>
             </div>
-
-            
-      </div>
+            <img src="{{ url_for('static', filename='img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+        </div>
+        {% endfor %}
+    </div>
 
     </div>
 
