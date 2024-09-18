@@ -111,9 +111,9 @@ def login():
 def index():
     conn = get_db_connection()
     servicos = conn.execute('SELECT nome, preco FROM Servicos').fetchall()
+    barbeiros = conn.execute('SELECT equipe_id, nome, imagem FROM Equipe WHERE ativo = 1').fetchall()
     conn.close()
-
-    return render_template('index.html', servicos=servicos)
+    return render_template('index.html', servicos=servicos, barbeiros=barbeiros)
 
 
 # Rota de Cadastrese
