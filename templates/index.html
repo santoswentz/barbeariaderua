@@ -15,9 +15,8 @@
             <a href="/login" id="loginicone">Login</a>
             <ul>
                 <li><a href="/agendamentocliente">Agendamento</a></li>
-                <li><a href="#">Sobre nós</a></li>
-                <li><a href="#">Serviços</a></li>
-                <li id="paddinggohorse"><a href="#">Equipe</a></li>
+                <li><a href="#servico">Serviços</a></li>
+                <li id="paddinggohorse"><a href="#equipe">Equipe</a></li>
             </ul>
         </nav>
         <div class="backtxt">
@@ -29,46 +28,30 @@
     <div class="separadordecontainer"></div>
 
 
-    <!-------localização------->
-    <section class="container parallax1" id="centralizardiveimg">
+    <!-------servico------->
+    <section id="servico">
+      <section class="container parallax1" id="centralizardiveimg">
         <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
         <div class="localizacao">
             <h1>Serviços</h1>
             <div class="precos">
                 <table>
+                    {% for servico in servicos %}
                     <tr>
-                      <th>Corte</th>
-                      <th>R$ 35.00</th>
+                        <th>{{ servico['nome'] }}</th>
+                        <th>R$ {{ "%.2f"|format(servico['preco']) }}</th>  <!-- Formata o preço com 2 casas decimais -->
                     </tr>
-                    <tr>
-                      <th>Corte + Barba</th>
-                      <th>R$ 35.00</th>
-                    </tr>
-                    <tr>
-                      <th>Barba</th>
-                      <th>R$ 35.00</th>
-                    </tr>
-                    <tr>
-                      <th>Corte + Pigmentação</th>
-                      <th>R$ 35.00</th>
-                    </tr>
-                    <tr>
-                      <th>Corte + Nevou</th>
-                      <th>R$ 35.00</th>
-                    </tr>
-                    <tr>
-                      <th>Nevou</th>
-                      <th>R$ 35.00</th>
-                    </tr>
-                  </table>
+                    {% endfor %}
+                </table>
             </div>
         </div>
         <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+      </section>
     </section>
     <div class="separadordecontainer"></div>
 
     <!--equipe-->
-
+<section id="equipe">
     <div class="background2">
       <div class="tituloequipe">
         <h1>Equipe</h1>
@@ -107,8 +90,8 @@
       </div>
 
     </div>
-
-    <!--Sobre-Nós-->
+</section>
+    <!--footer-->
     <footer>
       <div class="container">
         <div class="row">
@@ -117,7 +100,7 @@
             <ul>
               <li><a href="#" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a></li>
               <li><a href="https://www.instagram.com/estiloderuabarbearia/" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
-              <li><a href="#" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
+              <li><a href="#" target="_blank"><i class="fab fa-twitter"></i> Whatsapp</a></li>
             </ul>
           </div>
           <div class="col-md-4">
@@ -131,5 +114,6 @@
         </div>
       </div>
     </footer>
+
 </body>
 </html>

@@ -1,7 +1,8 @@
 from flask import Flask, redirect, render_template, url_for, request, flash, session
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
-from io import BytesIO
+import io
+import os
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -118,7 +119,12 @@ def login():
 # Rota para INDEX
 @app.route('/')
 def index():
-    return render_template('index.html')
+    conn = get_db_connection()
+    servicos = conn.execute('SELECT nome, preco FROM Servicos').fetchall()
+    conn.close()
+
+    return render_template('index.html', servicos=servicos)
+
 
 # Rota de Cadastrese
 @app.route('/register', methods=['GET', 'POST'])
@@ -159,7 +165,11 @@ def logout():
 @app.route('/indexcliente')
 def cliente_dashboard():
     if 'role' in session and session['role'] == 'cliente':
-        return render_template('cliente_dashboard.html')
+        conn = get_db_connection()
+        servicos = conn.execute('SELECT nome, preco FROM Servicos').fetchall()
+        conn.close()
+
+        return render_template('cliente_dashboard.html', servicos=servicos)
     else:
         return redirect(url_for('login'))
 
