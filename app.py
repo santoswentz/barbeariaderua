@@ -226,6 +226,9 @@ def agendamento_cliente():
 # Rota para gerenciamento de agendamentos
 @app.route('/gerenciamentoagendamento', methods=['GET', 'POST'])
 def gerenciar_agendamentos():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Acesso negado. Apenas administradores podem acessar essa página.')
+        return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
     conn = get_db_connection()
 
     if request.method == 'POST':
@@ -278,6 +281,9 @@ def gerenciar_agendamentos():
 @app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
 
 def gerenciar_equipe():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Acesso negado. Apenas administradores podem acessar essa página.')
+        return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
     conn = get_db_connection()
 
     if request.method == 'POST':
@@ -336,6 +342,9 @@ def gerenciar_equipe():
 @app.route('/gerenciamentousuarios', methods=['GET', 'POST'])
 
 def gerenciar_usuarios():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Acesso negado. Apenas administradores podem acessar essa página.')
+        return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
     conn = get_db_connection()
 
     if request.method == 'POST':
@@ -395,6 +404,9 @@ def gerenciar_usuarios():
 
 @app.route('/gerenciamentoservicos', methods=['GET', 'POST'])
 def gerenciar_servicos():
+    if 'user_id' not in session or session.get('role') != 'admin':
+        flash('Acesso negado. Apenas administradores podem acessar essa página.')
+        return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
     conn = get_db_connection()
 
     if request.method == 'POST':
