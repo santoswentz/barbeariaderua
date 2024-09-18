@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, url_for, request, flash, session
+from flask import Flask, redirect, render_template, url_for, request, flash, session, send_file
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 import io
@@ -275,67 +275,69 @@ def gerenciar_agendamentos():
 
     return render_template('gerenciamento_agendamentos.html', agendamentos=agendamentos, usuarios=usuarios, equipe=equipe, servicos=servicos)
 
-
-
-# CRUD gerenciamento de equipe
-@app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
-
-def gerenciar_equipe():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        flash('Acesso negado. Apenas administradores podem acessar essa página.')
-        return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
+# Rota para exibir a imagem do membro da equipe
+@app.route('/imagem/<int:equipe_id>')
+def imagem(equipe_id):
     conn = get_db_connection()
+    equipe = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()
+    conn.close()
 
-    if request.method == 'POST':
-        if 'adicionar' in request.form:
-            nome = request.form['nome']
-            telefone = request.form['telefone']
-            email = request.form['email']
-            imagem = request.files.get('imagem')  # Obtém o arquivo de imagem se estiver presente
+    if equipe and equipe['imagem']:
+        return send_file(io.BytesIO(equipe['imagem']), mimetype='image/jpeg')
+    return 'Imagem não encontrada', 404
 
-            imagem_blob = None
-            if imagem:
-                imagem_blob = imagem.read()  # Lê os dados da imagem
+#testar atualização da img
+@app.route('/verificar_imagem/<int:equipe_id>')
+def verificar_imagem(equipe_id):
+    with get_db_connection() as conn:
+        membro = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()
+        if membro:
+            imagem_blob = membro['imagem']
+            if imagem_blob:
+                return send_file(io.BytesIO(imagem_blob), mimetype='image/jpeg')
+        return 'Imagem não encontrada', 404
 
-            try:
+# gerenciamento de equipe com CRUD completo
+@app.route('/gerenciamentoequipe', methods=['GET', 'POST'])
+def gerenciar_equipe():
+    with get_db_connection() as conn:
+        if request.method == 'POST':
+            if 'adicionar' in request.form:
+                nome = request.form['nome']
+                telefone = request.form['telefone']
+                email = request.form['email']
+                imagem = request.files.get('imagem')
+                imagem_blob = imagem.read() if imagem else None
+                print(f"Imagem adicionada: {imagem_blob}")
+
                 conn.execute('INSERT INTO Equipe (nome, telefone, email, imagem) VALUES (?, ?, ?, ?)',
                              (nome, telefone, email, imagem_blob))
                 conn.commit()
                 flash('Membro da equipe adicionado com sucesso!')
-            except sqlite3.IntegrityError as e:
-                print(f"Erro ao adicionar: {e}")  # Debug
-                flash('Erro: Email já está em uso.')
 
-        elif 'editar' in request.form:
-            equipe_id = request.form['equipe_id']
-            nome = request.form['nome']
-            telefone = request.form['telefone']
-            email = request.form['email']
-            ativo = 1 if 'ativo' in request.form else 0
-            imagem = request.files.get('imagem')
+            elif 'editar' in request.form:
+                equipe_id = request.form['equipe_id']
+                nome = request.form['nome']
+                telefone = request.form['telefone']
+                email = request.form['email']
+                ativo = 1 if 'ativo' in request.form else 0
+                imagem = request.files.get('imagem')
+                imagem_blob = imagem.read() if imagem else None
+                print(f"Imagem editada: {imagem_blob}")
 
-            imagem_blob = conn.execute('SELECT imagem FROM Equipe WHERE equipe_id = ?', (equipe_id,)).fetchone()['imagem']
-            if imagem:
-                imagem_blob = imagem.read()  # Lê os dados da imagem
+                conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, ativo = ?, imagem = ? WHERE equipe_id = ?',
+                             (nome, telefone, email, ativo, imagem_blob, equipe_id))
+                conn.commit()
+                flash('Membro da equipe atualizado com sucesso!')
 
-            conn.execute('UPDATE Equipe SET nome = ?, telefone = ?, email = ?, ativo = ?, imagem = ? WHERE equipe_id = ?',
-                         (nome, telefone, email, ativo, imagem_blob, equipe_id))
+        if request.args.get('excluir'):
+            equipe_id = request.args.get('excluir')
+            conn.execute('DELETE FROM Equipe WHERE equipe_id = ?', (equipe_id,))
             conn.commit()
-            flash('Membro da equipe atualizado com sucesso!')
+            flash('Membro da equipe excluído com sucesso!')
 
-    if request.args.get('excluir'):
-        equipe_id = request.args.get('excluir')
-        print(f"Excluindo membro da equipe equipe_id: {equipe_id}")  # Debug
-        conn.execute('DELETE FROM Equipe WHERE equipe_id = ?', (equipe_id,))
-        conn.commit()
-        flash('Membro da equipe excluído com sucesso!')
-
-        
-
-    equipe = conn.execute('SELECT * FROM Equipe').fetchall()
-    conn.close()
+        equipe = conn.execute('SELECT * FROM Equipe').fetchall()
     
-
     return render_template('gerenciamento_equipe.html', equipe=equipe)
 
 # CRUD de usuários

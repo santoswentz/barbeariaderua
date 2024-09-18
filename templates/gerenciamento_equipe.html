@@ -14,7 +14,7 @@
     <!-- Formulário para Adicionar Novo Membro da Equipe -->
     <h3>Adicionar Membro da Equipe</h3>
     
-    <form action="/gerenciamentoequipe" method="POST">
+    <form action="/gerenciamentoequipe" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="adicionar">
         <label for="nome">Nome:</label>
         <input type="text" id="nome" name="nome" required>
@@ -66,7 +66,7 @@
                 </td>
                 <td>
                     {% if membro.imagem %}
-                        <img src="{{ url_for('imagem', equipe_id=membro.equipe_id) }}" alt="Imagem de {{ membro.nome }}" style="width: 100px; height: auto;">
+                        <img src="{{ url_for('imagem', equipe_id=membro.equipe_id) }}" alt="Imagem de {{ membro.nome }}" style="width: 100px; height: auto;" alt="Imagem do Membro">
                     {% else %}
                         em manutenção
                     {% endif %}
