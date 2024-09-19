@@ -190,7 +190,7 @@ def agendamento_cliente():
         
         # Validar horário
         try:
-            data_hora_dt = datetime.datetime.fromisoformat(data_hora)
+            data_hora_dt = datetime.fromisoformat(data_hora)
             dia_da_semana = data_hora_dt.weekday()
             hora = data_hora_dt.hour
             

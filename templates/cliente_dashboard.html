@@ -15,8 +15,8 @@
             <a href="/logout" id="loginicone">Sair</a>
             <ul>
                 <li><a href="/agendamentocliente">Agendamento</a></li>
-                <li><a href="#">Serviços</a></li>
-                <li id="paddinggohorse"><a href="#">Equipe</a></li>
+                <li><a href="#servico">Serviços</a></li>
+                <li id="paddinggohorse"><a href="#equipe">Equipe</a></li>
             </ul>
         </nav>
         <div class="backtxt">
@@ -29,54 +29,57 @@
 
 
     <!-------localização------->
-    <section class="container parallax1" id="centralizardiveimg">
-      <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
-      <div class="localizacao">
-          <h1>Serviços</h1>
-          <div class="precos">
-              <table>
-                  {% for servico in servicos %}
-                  <tr>
-                      <th>{{ servico['nome'] }}</th>
-                      <th>R$ {{ "%.2f"|format(servico['preco']) }}</th>  <!-- Formata o preço com 2 casas decimais -->
-                  </tr>
-                  {% endfor %}
-              </table>
-          </div>
-      </div>
-      <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
-    </section>
+    
+    <section id="servico">
+      <section class="container parallax1" id="centralizardiveimg">
+        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
+        <div class="localizacao">
+            <h1>Serviços</h1>
+            <div class="precos">
+                <table>
+                    {% for servico in servicos %}
+                    <tr>
+                        <th>{{ servico['nome'] }}</th>
+                        <th>R$ {{ "%.2f"|format(servico['preco']) }}</th>  <!-- Formata o preço com 2 casas decimais -->
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+      </section>
+  </section>
     <div class="separadordecontainer"></div>
 
     <!--equipe-->
-
-    <div class="background2">
-      <div class="tituloequipe">
-        <h1>Equipe</h1>
-        <h2>de rua</h2>
-      </div>
-      <div class="variosbarbeiros">
-        <!-- Loop para criar uma div "juntartd" para cada barbeiro -->
-        {% for barbeiro in barbeiros %}
-        <div class="juntartd">
-            <img src="{{ url_for('static', filename='img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
-            <div class="caixaprincipalbarbeiro">
-                <div class="imgbarbeiro">
-                    {% if barbeiro.imagem %}
-                        <img src="{{ url_for('verificar_imagem', equipe_id=barbeiro.equipe_id) }}" alt="Imagem do barbeiro" style="max-width: 100px;">
-                    {% else %}
-                        <p>Imagem não disponível</p>
-                    {% endif %}
-                </div>
-                <div class="nomedobarbeiro">
-                    <p>{{ barbeiro.nome }}</p>
-                </div>
-            </div>
-            <img src="{{ url_for('static', filename='img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+    <section id="equipe">
+      <div class="background2">
+        <div class="tituloequipe">
+          <h1>Equipe</h1>
+          <h2>de rua</h2>
         </div>
-        {% endfor %}
-    </div>
-
+        <div class="variosbarbeiros">
+          <!-- Loop para criar uma div "juntartd" para cada barbeiro -->
+          {% for barbeiro in barbeiros %}
+          <div class="juntartd">
+              <img src="{{ url_for('static', filename='img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img1">
+              <div class="caixaprincipalbarbeiro">
+                  <div class="imgbarbeiro">
+                      {% if barbeiro.imagem %}
+                          <img src="{{ url_for('verificar_imagem', equipe_id=barbeiro.equipe_id) }}" alt="Imagem do barbeiro" style="max-width: 100px;">
+                      {% else %}
+                          <p>Imagem não disponível</p>
+                      {% endif %}
+                  </div>
+                  <div class="nomedobarbeiro">
+                      <p>{{ barbeiro.nome }}</p>
+                  </div>
+              </div>
+              <img src="{{ url_for('static', filename='img/png-transparent-barbershop-sign (1).png') }}" alt="" id="img2">
+          </div>
+          {% endfor %}
+      </div>
+    </section>
     </div>
 
     <!--Sobre-Nós-->
