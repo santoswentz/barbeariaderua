@@ -121,7 +121,9 @@ nav .tiraanimacao a{
     right: 70px;
     top: 33px;
 }
-
+#margindireita{
+    margin-right: 50px;
+}
 #paddinggohorse{
     padding-right: 120px;
 }

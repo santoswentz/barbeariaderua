@@ -223,6 +223,63 @@ def agendamento_cliente():
     
     return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos)
 
+# Página para visualizar agendamentos do usuário logado
+@app.route('/meus_agendamentos')
+def meus_agendamentos():
+    if 'user_id' not in session:
+        flash('Você precisa estar logado para acessar essa página.')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+    agendamentos = conn.execute('''
+        SELECT a.agendamento_id, a.data_hora, a.status, s.nome AS servico_nome, e.nome AS equipe_nome 
+        FROM Agendamentos a
+        JOIN Servicos s ON a.servicos_id = s.servicos_id
+        JOIN Equipe e ON a.equipe_id = e.equipe_id
+        WHERE a.user_id = ?
+        ORDER BY a.data_hora DESC
+    ''', (user_id,)).fetchall()
+    conn.close()
+
+    return render_template('meus_agendamentos.html', agendamentos=agendamentos)
+
+# Página para cancelar um agendamento
+@app.route('/cancelar_agendamento/<int:agendamento_id>', methods=['POST'])
+def cancelar_agendamento(agendamento_id):
+    if 'user_id' not in session:
+        flash('Você precisa estar logado para realizar essa ação.')
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+
+    # Buscar informações do agendamento
+    agendamento = conn.execute('SELECT data_hora, status FROM Agendamentos WHERE agendamento_id = ?', (agendamento_id,)).fetchone()
+    
+    if agendamento is None:
+        flash('Agendamento não encontrado.')
+        return redirect(url_for('meus_agendamentos'))
+    
+    # Exibir o status atual e ID do agendamento para depuração
+    print(f"Agendamento ID: {agendamento_id}")
+    print(f"Status atual: {agendamento['status']}")
+
+    data_agendamento = datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M')  # Ajuste no formato da data
+    agora = datetime.now()
+
+    # Verificar se faltam menos de 24 horas para o agendamento
+    if data_agendamento - agora < timedelta(hours=24):
+        flash('Não é possível cancelar o agendamento com menos de 24 horas de antecedência.')
+        return redirect(url_for('meus_agendamentos'))
+
+    # Cancelar o agendamento se ainda for permitido
+    conn.execute('UPDATE Agendamentos SET status = ? WHERE agendamento_id = ?', ('cancelado', agendamento_id))
+    conn.commit()
+    conn.close()
+
+    flash('Agendamento cancelado com sucesso.')
+    return redirect(url_for('meus_agendamentos'))
+
 
 # Rota para gerenciamento de agendamentos
 @app.route('/gerenciamentoagendamento', methods=['GET', 'POST'])
