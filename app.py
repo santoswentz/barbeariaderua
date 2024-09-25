@@ -173,12 +173,16 @@ def admin_dashboard():
     else:
         return redirect(url_for('login'))
 
-#cliente agendar
+# Função para formatar a data/hora de forma humanizada
+def formatar_data_hora(data_hora):
+    return data_hora.strftime('%A, %d de %B de %Y, %H:%M')
+
+# Cliente agendar
 @app.route('/agendamentocliente', methods=['GET', 'POST'])
 def agendamento_cliente():
     if 'user_id' not in session:
         flash('Você precisa estar logado para fazer um agendamento.')
-        return redirect('/login')
+        return redirect(url_for('login'))
     
     user_id = session['user_id']
     conn = get_db_connection()
@@ -188,7 +192,7 @@ def agendamento_cliente():
         servicos_id = request.form['servicos_id']
         data_hora = request.form['data_hora']
         
-        # Validar horário
+        # Validação de horário
         try:
             data_hora_dt = datetime.fromisoformat(data_hora)
             dia_da_semana = data_hora_dt.weekday()
@@ -216,7 +220,7 @@ def agendamento_cliente():
             flash(f'Erro: {e}')
         except sqlite3.Error as e:
             flash(f'Erro ao tentar realizar o agendamento: {e}')
-        
+    
     equipe = conn.execute('SELECT equipe_id, nome FROM Equipe WHERE ativo = 1').fetchall()
     servicos = conn.execute('SELECT servicos_id, nome FROM Servicos').fetchall()
     conn.close()
@@ -240,8 +244,15 @@ def meus_agendamentos():
         WHERE a.user_id = ?
         ORDER BY a.data_hora DESC
     ''', (user_id,)).fetchall()
+    
+    # Formatar as datas de forma mais amigável
+    agendamentos = [{'agendamento_id': agendamento['agendamento_id'],
+                     'data_hora': formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M')),
+                     'servico_nome': agendamento['servico_nome'],
+                     'equipe_nome': agendamento['equipe_nome'],
+                     'status': agendamento['status']} for agendamento in agendamentos]
+    
     conn.close()
-
     return render_template('meus_agendamentos.html', agendamentos=agendamentos)
 
 # Página para cancelar um agendamento
@@ -259,12 +270,8 @@ def cancelar_agendamento(agendamento_id):
     if agendamento is None:
         flash('Agendamento não encontrado.')
         return redirect(url_for('meus_agendamentos'))
-    
-    # Exibir o status atual e ID do agendamento para depuração
-    print(f"Agendamento ID: {agendamento_id}")
-    print(f"Status atual: {agendamento['status']}")
 
-    data_agendamento = datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M')  # Ajuste no formato da data
+    data_agendamento = datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M')
     agora = datetime.now()
 
     # Verificar se faltam menos de 24 horas para o agendamento
@@ -272,7 +279,7 @@ def cancelar_agendamento(agendamento_id):
         flash('Não é possível cancelar o agendamento com menos de 24 horas de antecedência.')
         return redirect(url_for('meus_agendamentos'))
 
-    # Cancelar o agendamento se ainda for permitido
+    # Cancelar o agendamento
     conn.execute('UPDATE Agendamentos SET status = ? WHERE agendamento_id = ?', ('cancelado', agendamento_id))
     conn.commit()
     conn.close()
@@ -280,58 +287,112 @@ def cancelar_agendamento(agendamento_id):
     flash('Agendamento cancelado com sucesso.')
     return redirect(url_for('meus_agendamentos'))
 
-
-# Rota para gerenciamento de agendamentos
+# Rota para o gerenciamento de agendamentos
 @app.route('/gerenciamentoagendamento', methods=['GET', 'POST'])
-def gerenciar_agendamentos():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        flash('Acesso negado. Apenas administradores podem acessar essa página.')
-        return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
+def gerenciamento_agendamento():
     conn = get_db_connection()
 
+    # Lógica de Adição e Edição de Agendamentos (POST)
     if request.method == 'POST':
         if 'adicionar' in request.form:
+            # Capturar os valores do formulário
             user_id = request.form['user_id']
             equipe_id = request.form['equipe_id']
             servicos_id = request.form['servicos_id']
             data_hora = request.form['data_hora']
             status = request.form['status']
-            print(f"Adicionando agendamento: user_id={user_id}, equipe_id={equipe_id}, servicos_id={servicos_id}, data_hora={data_hora}, status={status}")  # Debug
-
+            
+            # Inserir novo agendamento no banco de dados
             conn.execute('INSERT INTO Agendamentos (user_id, equipe_id, servicos_id, data_hora, status) VALUES (?, ?, ?, ?, ?)',
                          (user_id, equipe_id, servicos_id, data_hora, status))
             conn.commit()
-            flash('Agendamento adicionado com sucesso!')
-
+        
         elif 'editar' in request.form:
+            # Editar agendamento existente
             agendamento_id = request.form['agendamento_id']
             user_id = request.form['user_id']
             equipe_id = request.form['equipe_id']
             servicos_id = request.form['servicos_id']
             data_hora = request.form['data_hora']
             status = request.form['status']
-            print(f"Editando agendamento agendamento_id={agendamento_id}, user_id={user_id}, equipe_id={equipe_id}, servicos_id={servicos_id}, data_hora={data_hora}, status={status}")  # Debug
             
             conn.execute('UPDATE Agendamentos SET user_id = ?, equipe_id = ?, servicos_id = ?, data_hora = ?, status = ? WHERE agendamento_id = ?',
                          (user_id, equipe_id, servicos_id, data_hora, status, agendamento_id))
             conn.commit()
-            flash('Agendamento atualizado com sucesso!')
 
-    if request.args.get('excluir'):
-        agendamento_id = request.args.get('excluir')
-        print(f"Excluindo agendamento agendamento_id={agendamento_id}")  # Debug
-        conn.execute('DELETE FROM Agendamentos WHERE agendamento_id = ?', (agendamento_id,))
+    # Lógica de Exclusão de Agendamentos (GET)
+    excluir_id = request.args.get('excluir')
+    if excluir_id:
+        conn.execute('DELETE FROM Agendamentos WHERE agendamento_id = ?', (excluir_id,))
         conn.commit()
-        flash('Agendamento excluído com sucesso!')
+        return redirect(url_for('gerenciamento_agendamento'))
 
-    # Obter lista de agendamentos e outras informações necessárias
-    agendamentos = conn.execute('SELECT * FROM Agendamentos').fetchall()
-    usuarios = conn.execute('SELECT user_id, nome FROM Users').fetchall()
-    equipe = conn.execute('SELECT equipe_id, nome FROM Equipe').fetchall()
-    servicos = conn.execute('SELECT servicos_id, nome FROM Servicos').fetchall()
+    # Lógica de Pesquisa e Filtros (GET)
+    search = request.args.get('search', '')
+    filtro = request.args.get('filtro', '')
+
+    if search:
+        # Pesquisa por nome de usuário, nome da equipe, serviço ou status
+        query = '''
+        SELECT agendamentos.*, users.nome AS user_nome, equipe.nome AS equipe_nome, servicos.nome AS servico_nome 
+        FROM Agendamentos 
+        JOIN Users ON Agendamentos.user_id = Users.user_id 
+        JOIN Equipe ON Agendamentos.equipe_id = Equipe.equipe_id 
+        JOIN Servicos ON Agendamentos.servicos_id = Servicos.servicos_id
+        WHERE Users.nome LIKE ? OR Equipe.nome LIKE ? OR Servicos.nome LIKE ? OR Agendamentos.status LIKE ?
+        '''
+        search_term = f'%{search}%'
+        agendamentos = conn.execute(query, (search_term, search_term, search_term, search_term)).fetchall()
+    
+    elif filtro == 'hoje':
+        # Filtro para agendamentos de hoje
+        hoje = datetime.now().strftime('%Y-%m-%d')
+        query = '''
+        SELECT agendamentos.*, users.nome AS user_nome, equipe.nome AS equipe_nome, servicos.nome AS servico_nome 
+        FROM Agendamentos 
+        JOIN Users ON Agendamentos.user_id = Users.user_id 
+        JOIN Equipe ON Agendamentos.equipe_id = Equipe.equipe_id 
+        JOIN Servicos ON Agendamentos.servicos_id = Servicos.servicos_id
+        WHERE DATE(agendamentos.data_hora) = ?
+        '''
+        agendamentos = conn.execute(query, (hoje,)).fetchall()
+
+    elif filtro == 'semana':
+        # Filtro para agendamentos desta semana
+        hoje = datetime.now()
+        inicio_semana = hoje - timedelta(days=hoje.weekday())  # Segunda-feira desta semana
+        fim_semana = inicio_semana + timedelta(days=6)  # Domingo desta semana
+        query = '''
+        SELECT agendamentos.*, users.nome AS user_nome, equipe.nome AS equipe_nome, servicos.nome AS servico_nome 
+        FROM Agendamentos 
+        JOIN Users ON Agendamentos.user_id = Users.user_id 
+        JOIN Equipe ON Agendamentos.equipe_id = Equipe.equipe_id 
+        JOIN Servicos ON Agendamentos.servicos_id = Servicos.servicos_id
+        WHERE DATE(agendamentos.data_hora) BETWEEN ? AND ?
+        '''
+        agendamentos = conn.execute(query, (inicio_semana.strftime('%Y-%m-%d'), fim_semana.strftime('%Y-%m-%d'))).fetchall()
+
+    else:
+        # Consulta padrão sem pesquisa ou filtro
+        query = '''
+        SELECT agendamentos.*, users.nome AS user_nome, equipe.nome AS equipe_nome, servicos.nome AS servico_nome 
+        FROM Agendamentos 
+        JOIN Users ON Agendamentos.user_id = Users.user_id 
+        JOIN Equipe ON Agendamentos.equipe_id = Equipe.equipe_id 
+        JOIN Servicos ON Agendamentos.servicos_id = Servicos.servicos_id
+        '''
+        agendamentos = conn.execute(query).fetchall()
+
+    # Coletar dados para as opções de formulário (usuarios, equipe, servicos)
+    usuarios = conn.execute('SELECT * FROM Users').fetchall()
+    equipe = conn.execute('SELECT * FROM Equipe').fetchall()
+    servicos = conn.execute('SELECT * FROM Servicos').fetchall()
+
     conn.close()
 
+    # Renderizar o template com os dados
     return render_template('gerenciamento_agendamentos.html', agendamentos=agendamentos, usuarios=usuarios, equipe=equipe, servicos=servicos)
+
 
 # Rota para exibir a imagem do membro da equipe
 @app.route('/imagem/<int:equipe_id>')
@@ -412,36 +473,34 @@ def gerenciar_equipe():
 
 # CRUD de usuários
 @app.route('/gerenciamentousuarios', methods=['GET', 'POST'])
-
 def gerenciar_usuarios():
     if 'user_id' not in session or session.get('role') != 'admin':
         flash('Acesso negado. Apenas administradores podem acessar essa página.')
         return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
+    
     conn = get_db_connection()
 
+    # Verifica se é uma requisição POST para adicionar ou editar usuário
     if request.method == 'POST':
-        # Verifica se é para adicionar ou editar usuário
         if 'adicionar' in request.form:
+            # Adiciona um novo usuário
             nome = request.form['nome']
             email = request.form['email']
             senha = request.form['senha']
             telefone = request.form['telefone']
             role = request.form['role']
-            print(f"Adicionando usuário: {nome}, {email}, {senha}, {telefone}, {role}")  # Debug
-
-            # Adicionar um novo usuário 
+            senha_hashed = generate_password_hash(senha)
+            
             try:
-                senha_hashed = generate_password_hash(senha)
                 conn.execute('INSERT INTO Users (nome, email, senha, telefone, role) VALUES (?, ?, ?, ?, ?)',
                              (nome, email, senha_hashed, telefone, role))
                 conn.commit()
                 flash('Usuário adicionado com sucesso!')
-            except sqlite3.IntegrityError as e:
-                print(f"Erro ao adicionar: {e}")  # Debug
+            except sqlite3.IntegrityError:
                 flash('Erro: Email já está em uso.')
 
         elif 'editar' in request.form:
-            # Editar um usuário existente 
+            # Edita um usuário existente
             user_id = request.form['user_id']
             nome = request.form['nome']
             email = request.form['email']
@@ -449,27 +508,38 @@ def gerenciar_usuarios():
             telefone = request.form['telefone']
             role = request.form['role']
             senha_hashed = generate_password_hash(senha)
-            print(f"Editando usuário user_id: {user_id}, Nome: {nome}, Email: {email}, Senha: {senha}, Telefone: {telefone}, Função: {role}")  # Debug
-            senha_hashed = generate_password_hash(senha)
-            
+
             conn.execute('UPDATE Users SET nome = ?, email = ?, senha = ?, telefone = ?, role = ? WHERE user_id = ?',
                          (nome, email, senha_hashed, telefone, role, user_id))
             conn.commit()
             flash('Usuário atualizado com sucesso!')
 
-    # Excluir usuário (usando query params)
+    # Verifica se é uma requisição GET para excluir usuário
     if request.args.get('excluir'):
         user_id = request.args.get('excluir')
-        print(f"Excluindo usuário user_id: {user_id}")  # Debug
         conn.execute('DELETE FROM Users WHERE user_id = ?', (user_id,))
         conn.commit()
         flash('Usuário excluído com sucesso!')
 
-    # Obter a lista de usuários 'Users'
-    usuarios = conn.execute('SELECT * FROM Users').fetchall()
+    # Lógica de pesquisa de usuários
+    search = request.args.get('search', '')
+
+    if search:
+        # Pesquisa por nome, email, telefone ou função (role)
+        search_term = f'%{search}%'
+        query = '''
+            SELECT * FROM Users 
+            WHERE nome LIKE ? OR email LIKE ? OR telefone LIKE ? OR role LIKE ?
+        '''
+        usuarios = conn.execute(query, (search_term, search_term, search_term, search_term)).fetchall()
+    else:
+        # Exibe todos os usuários caso não haja pesquisa
+        usuarios = conn.execute('SELECT * FROM Users').fetchall()
+
     conn.close()
 
     return render_template('gerenciamento_usuarios.html', usuarios=usuarios)
+
 
 
 # CRUD serviços

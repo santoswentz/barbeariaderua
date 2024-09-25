@@ -5,7 +5,7 @@
     --cor-terciaria: #fafafa;
     --cor-quartenaria: #19c0f3;
     --animacaocor4: #3457f3;
-    --animações1: #6b0002;
+    --animações1: #9b0104;
     --bordas: #fff;
   }
 
@@ -581,4 +581,82 @@ footer {
 
 .gerenciamentobody a[href="/indexadmin"]:hover {
     text-decoration: underline;
+}
+.divadicionarepesquisa{
+    display: flex;
+    gap: 15px;
+    margin: 20px;
+}
+/* CSS para a página Meus Agendamentos */
+.meusagendamentos {
+    font-family: Arial, sans-serif;
+    display: flex;
+    padding: 0px 100px;
+    justify-content: center;  /* Centraliza horizontalmente */
+    align-items: center;      /* Centraliza verticalmente */
+    height: 100vh;            /* Faz com que ocupe toda a altura da página */
+    flex-direction: column;   /* Coloca os elementos em coluna (um embaixo do outro) */
+    text-align: center;
+}
+
+.meusagendamentos h1 {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.meusagendamentos table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.meusagendamentos table th, .meusagendamentos table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.meusagendamentos table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.meusagendamentos table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.meusagendamentos table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.meusagendamentos table td button {
+    background-color: var(--cor-principal);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 1s;
+}
+
+.meusagendamentos table td button:hover {
+    background-color: var(--animações1);
+}
+
+.meusagendamentos a {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #007bff;
+    font-size: 16px;
+}
+
+.meusagendamentos a:hover {
+    text-decoration: underline;
+}
+
+.meusagendamentos p {
+    margin-top: 20px;
+    color: #555;
 }
