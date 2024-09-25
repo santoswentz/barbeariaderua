@@ -227,6 +227,13 @@ def agendamento_cliente():
     
     return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos)
 
+
+
+
+
+
+
+
 # Página para visualizar agendamentos do usuário logado
 @app.route('/meus_agendamentos')
 def meus_agendamentos():
@@ -237,12 +244,13 @@ def meus_agendamentos():
     user_id = session['user_id']
     conn = get_db_connection()
     agendamentos = conn.execute('''
-        SELECT a.agendamento_id, a.data_hora, a.status, s.nome AS servico_nome, e.nome AS equipe_nome 
-        FROM Agendamentos a
-        JOIN Servicos s ON a.servicos_id = s.servicos_id
-        JOIN Equipe e ON a.equipe_id = e.equipe_id
-        WHERE a.user_id = ?
-        ORDER BY a.data_hora DESC
+        SELECT A.agendamento_id, A.data_hora, A.status, 
+               S.nome AS servico_nome, 
+               E.nome AS equipe_nome
+        FROM Agendamentos A
+        JOIN Servicos S ON A.servicos_id = S.servicos_id
+        JOIN Equipe E ON A.equipe_id = E.equipe_id
+        WHERE A.user_id = ? AND A.status = 'agendado'
     ''', (user_id,)).fetchall()
     
     # Formatar as datas de forma mais amigável
@@ -286,6 +294,14 @@ def cancelar_agendamento(agendamento_id):
 
     flash('Agendamento cancelado com sucesso.')
     return redirect(url_for('meus_agendamentos'))
+
+
+
+
+
+
+
+
 
 # Rota para o gerenciamento de agendamentos
 @app.route('/gerenciamentoagendamento', methods=['GET', 'POST'])

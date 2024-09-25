@@ -8,61 +8,61 @@
 </head>
 <body>
 
-        <div class="meusagendamentos">
+    <div class="meusagendamentos">
         <nav>
-            <a href="/indexcliente"><img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" class="logo "></a>
-            <p id="loginicone"><a href="/logout" id="margindireita">Sair</a><a href="/meus_agendamentos">Conta</a></p>
+            <a href="/indexcliente"><img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" class="logo"></a>
+            <p id="loginicone"><a href="/indexcliente" id="margindireita">Sair</a><a href="/meus_agendamentos">Conta</a></p>
             <ul>
                 <li><a href="/agendamentocliente">Agendamento</a></li>
                 <li><a href="#servico">Serviços</a></li>
-                <li id="paddinggohorse"><a href="#equipe">Equipe</a></li>
             </ul>
         </nav>
         <div class="backtxt">
             <h1>Meus<span> Agendamentos</span></h1>
         </div>
-    {% if agendamentos %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Data e Hora</th>
-                    <th>Serviço</th>
-                    <th>Equipe</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for agendamento in agendamentos %}
+        
+        {% if agendamentos %}
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ agendamento['data_hora'] }}</td>
-                        <td>{{ agendamento['servico_nome'] }}</td>
-                        <td>{{ agendamento['equipe_nome'] }}</td>
-                        <td>{{ agendamento['status'] }}</td>
-                        <td>
-                            {% if agendamento['status'] != 'cancelado' %}
-                                <form action="{{ url_for('cancelar_agendamento', agendamento_id=agendamento['agendamento_id']) }}" method="POST">
-                                    <button type="submit">Cancelar</button>
-                                </form>
-                            {% endif %}
-                        </td>
+                        <th>Data e Hora</th>
+                        <th>Serviço</th>
+                        <th>Equipe</th>
+                        <th>Status</th>
+                        <th>Ações</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Você ainda não tem agendamentos.</p>
-    {% endif %}
-    
-    <div class="regras">
-        <h1>REGRAS</h1>
-        <ul>
-            <li>Não é permitido o cancelamento/mudanças em até 24 horas antes do horário marcado.</li>
-            <li>Chegar no horário agendado.</li>
-            <li>Comunicar mudanças de horário com antecedência.</li>
-        </ul>
+                </thead>
+                <tbody>
+                    {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>{{ agendamento['data_hora'] }}</td>
+                            <td>{{ agendamento['servico_nome'] }}</td>
+                            <td>{{ agendamento['equipe_nome'] }}</td>
+                            <td>{{ agendamento['status'] }}</td>
+                            <td>
+                                {% if agendamento['status'] != 'cancelado' %}
+                                    <form action="{{ url_for('cancelar_agendamento', agendamento_id=agendamento['agendamento_id']) }}" method="POST">
+                                        <button type="submit">Cancelar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Você ainda não tem agendamentos.</p>
+        {% endif %}
+        
+        <div class="regras">
+            <h1>REGRAS</h1>
+            <ul>
+                <li>Não é permitido o cancelamento/mudanças em até 24 horas antes do horário marcado.</li>
+                <li>Chegar no horário agendado.</li>
+                <li>Comunicar mudanças de horário com antecedência.</li>
+            </ul>
+        </div>
+        
     </div>
-    
-</div>
 </body>
 </html>
