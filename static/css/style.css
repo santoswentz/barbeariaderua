@@ -155,18 +155,18 @@ nav .tiraanimacao a{
     }
 }
 
-.background1 .backtxt h1{
+.backtxt h1{
     font-size: 7vw;
     -webkit-text-stroke: 1px #fff;  /*deixa a letra só com a borda*/
     color: transparent;
 }
 @media (max-width: 600px){
-    .background1 .backtxt h1{
+    .backtxt h1{
         padding-top: 100px;
         font-size: 10vw;
     }
 }
-.background1 .backtxt span{
+.backtxt span{
     color: var(--cor-principal);
     -webkit-text-stroke: 1px var(--cor-principal);  /*deixa a letra só com a borda*/
 }
@@ -589,12 +589,14 @@ footer {
 }
 /* CSS para a página Meus Agendamentos */
 .meusagendamentos {
-    font-family: Arial, sans-serif;
+    background-image: linear-gradient(rgba(0,0,0,9),transparent), url('../img/barbearialogo.jpg');
+    background-size:cover;
+    background-position: center;
+    width: 100%;
+    height: 100vh;
     display: flex;
-    padding: 0px 100px;
     justify-content: center;  /* Centraliza horizontalmente */
     align-items: center;      /* Centraliza verticalmente */
-    height: 100vh;            /* Faz com que ocupe toda a altura da página */
     flex-direction: column;   /* Coloca os elementos em coluna (um embaixo do outro) */
     text-align: center;
 }
@@ -606,9 +608,9 @@ footer {
 }
 
 .meusagendamentos table {
-    width: 100%;
+    width: 48vw;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    background-color: #fafafa;
 }
 
 .meusagendamentos table th, .meusagendamentos table td {
@@ -623,7 +625,7 @@ footer {
 }
 
 .meusagendamentos table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f2f2f2;
 }
 
 .meusagendamentos table tbody tr:hover {
@@ -644,19 +646,35 @@ footer {
     background-color: var(--animações1);
 }
 
-.meusagendamentos a {
-    display: inline-block;
-    margin-top: 20px;
-    text-decoration: none;
-    color: #007bff;
-    font-size: 16px;
-}
 
-.meusagendamentos a:hover {
-    text-decoration: underline;
-}
-
-.meusagendamentos p {
+.meusagendamentos table p {
     margin-top: 20px;
     color: #555;
+}
+.regras {
+    background-color: #f8f9fa; /* Fundo claro */
+    border: 1px solid #ced4da; /* Borda cinza clara */
+    border-radius: 8px; /* Bordas arredondadas */
+    padding: 20px; /* Espaçamento interno */
+    margin: 20px 0; /* Margem superior e inferior */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.regras h1 {
+    font-size: 24px; /* Tamanho da fonte do título */
+    color: #343a40; /* Cor do texto do título */
+    margin-bottom: 10px; /* Margem abaixo do título */
+}
+
+.regras ul {
+    list-style-type: disc; /* Marcadores em forma de disco */
+    padding-left: 20px; /* Espaçamento à esquerda para a lista */
+    text-align: justify;
+}
+
+.regras li {
+    font-size: 16px; /* Tamanho da fonte dos itens da lista */
+    color: #495057; /* Cor do texto dos itens da lista */
+    line-height: 1.5; /* Altura da linha */
+    margin-bottom: 5px; /* Margem inferior entre os itens */
 }

@@ -6,9 +6,21 @@
     <title>Meus Agendamentos</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="meusagendamentos">
-    <h1>Meus Agendamentos</h1>
+<body>
 
+        <div class="meusagendamentos">
+        <nav>
+            <a href="/indexcliente"><img src="{{ url_for('static', filename='/img/png-transparent-barbershop-sign (1).png') }}" alt="" class="logo "></a>
+            <p id="loginicone"><a href="/logout" id="margindireita">Sair</a><a href="/meus_agendamentos">Conta</a></p>
+            <ul>
+                <li><a href="/agendamentocliente">Agendamento</a></li>
+                <li><a href="#servico">Serviços</a></li>
+                <li id="paddinggohorse"><a href="#equipe">Equipe</a></li>
+            </ul>
+        </nav>
+        <div class="backtxt">
+            <h1>Meus<span> Agendamentos</span></h1>
+        </div>
     {% if agendamentos %}
         <table>
             <thead>
@@ -41,8 +53,16 @@
     {% else %}
         <p>Você ainda não tem agendamentos.</p>
     {% endif %}
-
-    <a href="/indexcliente">Voltar para a página inicial</a>
-    <p>não é permitido o cancelamento até 24 horas antes do horario marcado</p>
+    
+    <div class="regras">
+        <h1>REGRAS</h1>
+        <ul>
+            <li>Não é permitido o cancelamento/mudanças em até 24 horas antes do horário marcado.</li>
+            <li>Chegar no horário agendado.</li>
+            <li>Comunicar mudanças de horário com antecedência.</li>
+        </ul>
+    </div>
+    
+</div>
 </body>
 </html>
