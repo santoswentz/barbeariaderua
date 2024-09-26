@@ -8,6 +8,19 @@
     <title>Document</title>
 
     <script>
+        function validarHorario() {
+            const dataHora = document.getElementById('data_hora');
+            const dataSelecionada = new Date(dataHora.value);
+            const minutos = dataSelecionada.getMinutes();
+
+            // Verifica se os minutos são múltiplos de 30 (0 ou 30)
+            if (minutos !== 0 && minutos !== 30) {
+                dataHora.setCustomValidity('O horário deve ser arredondado para os intervalos de 30 minutos (Ex: 13:00, 13:30).');
+            } else {
+                dataHora.setCustomValidity('');
+            }
+        }
+
         function preencherHorarios() {
             const dataHora = document.getElementById('data_hora');
             const dataSelecionada = new Date(dataHora.value);
@@ -38,7 +51,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('data_hora').addEventListener('input', preencherHorarios);
+            document.getElementById('data_hora').addEventListener('input', () => {
+                preencherHorarios();
+                validarHorario(); // Verifica se o horário é redondo
+            });
         });
     </script>
 

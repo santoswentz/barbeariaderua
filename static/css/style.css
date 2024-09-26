@@ -299,10 +299,15 @@ nav .tiraanimacao a{
 }
 .imgbarbeiro{
     height: 150px;
+    width: 22vw;
     background-color: var(--bordas);
     display: flex;
-    align-items: center;
+    align-items: end;
     justify-content: center;
+}
+.imgbarbeiro img{
+    width: 130px;
+    height: 130px;
 }
 .nomedobarbeiro{
     height: 50px;

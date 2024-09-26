@@ -177,27 +177,48 @@ def admin_dashboard():
 def formatar_data_hora(data_hora):
     return data_hora.strftime('%A, %d de %B de %Y, %H:%M')
 
+
+
 # Cliente agendar
 @app.route('/agendamentocliente', methods=['GET', 'POST'])
 def agendamento_cliente():
     if 'user_id' not in session:
         flash('Você precisa estar logado para fazer um agendamento.')
         return redirect(url_for('login'))
-    
+
     user_id = session['user_id']
     conn = get_db_connection()
-    
+
     if request.method == 'POST':
         equipe_id = request.form['equipe_id']
         servicos_id = request.form['servicos_id']
         data_hora = request.form['data_hora']
-        
+
         # Validação de horário
         try:
             data_hora_dt = datetime.fromisoformat(data_hora)
+
+            # Impedir agendamentos no passado
+            if data_hora_dt < datetime.now():
+                raise ValueError("Você não pode agendar para uma data/hora no passado.")
+
+            # Verificar se o horário está arredondado para 30 minutos
+            if data_hora_dt.minute not in [0, 30]:
+                raise ValueError("O horário de agendamento deve ser arredondado para os intervalos de 30 minutos (Ex: 13:00, 13:30).")
+
+            # Limitar agendamentos simultâneos
+            agendamentos_ativos = conn.execute('''
+                SELECT COUNT(*) FROM Agendamentos 
+                WHERE user_id = ? AND status = 'agendado'
+            ''', (user_id,)).fetchone()[0]
+
+            if agendamentos_ativos >= 3:
+                raise ValueError("Você já tem 3 agendamentos em aberto. Aguarde até que um seja concluído ou cancelado antes de fazer um novo agendamento.")
+
             dia_da_semana = data_hora_dt.weekday()
             hora = data_hora_dt.hour
-            
+
+            # Restrições de horário
             if dia_da_semana == 6:  # Sábado
                 if hora < 13 or hora >= 18:
                     raise ValueError("O horário de agendamento para sábado deve estar entre 13:00 e 18:00.")
@@ -206,26 +227,28 @@ def agendamento_cliente():
             else:  # Segunda a sexta
                 if hora < 9 or hora >= 20:
                     raise ValueError("O horário de agendamento durante a semana deve estar entre 09:00 e 20:00.")
-            
-            status = 'pendente'  # Status inicial do agendamento
-            
+
+            status = 'agendado'  # Status inicial do agendamento
+
+            # Inserir novo agendamento
             conn.execute('''
                 INSERT INTO Agendamentos (user_id, equipe_id, servicos_id, data_hora, status)
                 VALUES (?, ?, ?, ?, ?)
             ''', (user_id, equipe_id, servicos_id, data_hora, status))
-            
+
             conn.commit()
             flash('Agendamento realizado com sucesso!')
         except ValueError as e:
             flash(f'Erro: {e}')
         except sqlite3.Error as e:
             flash(f'Erro ao tentar realizar o agendamento: {e}')
-    
+
     equipe = conn.execute('SELECT equipe_id, nome FROM Equipe WHERE ativo = 1').fetchall()
     servicos = conn.execute('SELECT servicos_id, nome FROM Servicos').fetchall()
     conn.close()
-    
+
     return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos)
+
 
 
 
@@ -262,6 +285,10 @@ def meus_agendamentos():
     
     conn.close()
     return render_template('meus_agendamentos.html', agendamentos=agendamentos)
+
+
+
+
 
 # Página para cancelar um agendamento
 @app.route('/cancelar_agendamento/<int:agendamento_id>', methods=['POST'])
