@@ -5,59 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Document</title>
+    <title>Agendamento de Serviço</title>
 
     <script>
-        function validarHorario() {
-            const dataHora = document.getElementById('data_hora');
-            const dataSelecionada = new Date(dataHora.value);
-            const minutos = dataSelecionada.getMinutes();
-
-            // Verifica se os minutos são múltiplos de 30 (0 ou 30)
-            if (minutos !== 0 && minutos !== 30) {
-                dataHora.setCustomValidity('O horário deve ser arredondado para os intervalos de 30 minutos (Ex: 13:00, 13:30).');
-            } else {
-                dataHora.setCustomValidity('');
-            }
+        function mudarData() {
+            const dataInput = document.getElementById('data');
+            const dataSelecionada = dataInput.value;
+            window.location.href = `/agendamentocliente?data=${dataSelecionada}`;
         }
-
-        function preencherHorarios() {
-            const dataHora = document.getElementById('data_hora');
-            const dataSelecionada = new Date(dataHora.value);
-            const diaDaSemana = dataSelecionada.getDay();
-            const horaAtual = dataSelecionada.getHours();
-            const minutos = dataSelecionada.getMinutes();
-
-            if (diaDaSemana === 0) { // Domingo
-                dataHora.setCustomValidity('Não é possível agendar no domingo.');
-            } else {
-                dataHora.setCustomValidity('');
-            }
-
-            // Limitar horários de acordo com o dia da semana
-            if (diaDaSemana === 6) { // Sábado
-                if (horaAtual < 13 || horaAtual > 17 || (horaAtual === 17 && minutos > 0)) {
-                    dataHora.setCustomValidity('Horário de agendamento para sábado é das 13:00 às 18:00.');
-                } else {
-                    dataHora.setCustomValidity('');
-                }
-            } else { // Segunda a sexta
-                if (horaAtual < 9 || horaAtual > 20 || (horaAtual === 20 && minutos > 0)) {
-                    dataHora.setCustomValidity('Horário de agendamento durante a semana é das 09:00 às 20:00.');
-                } else {
-                    dataHora.setCustomValidity('');
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('data_hora').addEventListener('input', () => {
-                preencherHorarios();
-                validarHorario(); // Verifica se o horário é redondo
-            });
-        });
     </script>
-
 </head>
 <body>
     <!-------navbar e escrita--------->
@@ -71,32 +27,41 @@
             </ul>
         </nav>
         <div class="logins" style="margin-top: 15vh;">
-        <h2>Agendamento de Serviço</h2>
+            <h2>Agendamento de Serviço</h2>
 
-        <form action="/agendamentocliente" method="POST">
-            <label for="equipe_id">Selecione o Profissional:</label>
-            <select id="equipe_id" name="equipe_id" required>
-                {% for membro in equipe %}
-                <option value="{{ membro.equipe_id }}">{{ membro.nome }}</option>
-                {% endfor %}
-            </select>
-            <br>
+            <form action="/agendamentocliente" method="POST">
+                <label for="equipe_id">Selecione o Profissional:</label>
+                <select id="equipe_id" name="equipe_id" required>
+                    {% for membro in equipe %}
+                    <option value="{{ membro.equipe_id }}">{{ membro.nome }}</option>
+                    {% endfor %}
+                </select>
+                <br>
 
-            <label for="servicos_id">Selecione o Serviço:</label>
-            <select id="servicos_id" name="servicos_id" required>
-                {% for servico in servicos %}
-                <option value="{{ servico.servicos_id }}">{{ servico.nome }}</option>
-                {% endfor %}
-            </select>
-            <br>
+                <label for="servicos_id">Selecione o Serviço:</label>
+                <select id="servicos_id" name="servicos_id" required>
+                    {% for servico in servicos %}
+                    <option value="{{ servico.servicos_id }}">{{ servico.nome }}</option>
+                    {% endfor %}
+                </select>
+                <br>
 
-            <label for="data_hora">Data e Hora do Agendamento:</label>
-            <input type="datetime-local" id="data_hora" name="data_hora" required>
-            <br>
+                <label for="data">Selecione a Data:</label>
+                <input type="date" id="data" name="data" value="{{ data_selecionada }}" onchange="mudarData()" required>
+                <br>
 
-            <button type="submit">Agendar</button>
-        </form>
-    </div>
+                <label for="horario">Selecione o Horário:</label>
+                <select id="horario" name="data_hora" required>
+                    {% for horario in horarios_disponiveis %}
+                    <option value="{{ data_selecionada }}T{{ horario }}">{{ horario }}</option>
+                    {% endfor %}
+                </select>
+                
+                <br>
+
+                <button type="submit">Agendar</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

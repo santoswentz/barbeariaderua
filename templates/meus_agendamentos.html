@@ -22,34 +22,36 @@
         </div>
         
         {% if agendamentos %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Data e Hora</th>
-                        <th>Serviço</th>
-                        <th>Equipe</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for agendamento in agendamentos %}
-                        <tr>
-                            <td>{{ agendamento['data_hora'] }}</td>
-                            <td>{{ agendamento['servico_nome'] }}</td>
-                            <td>{{ agendamento['equipe_nome'] }}</td>
-                            <td>{{ agendamento['status'] }}</td>
-                            <td>
-                                {% if agendamento['status'] != 'cancelado' %}
-                                    <form action="{{ url_for('cancelar_agendamento', agendamento_id=agendamento['agendamento_id']) }}" method="POST">
-                                        <button type="submit">Cancelar</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data/Hora</th>
+                    <th>Serviço</th>
+                    <th>Profissional</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agendamento in agendamentos %}
+                <tr>
+                    <td>{{ agendamento.data_hora }}</td>
+                    <td>{{ agendamento.servico_nome }}</td>
+                    <td>{{ agendamento.equipe_nome }}</td>
+                    <td>{{ agendamento.status }}</td>
+                    <td>
+                        <!-- Verificar se o status é 'agendado' antes de exibir o botão de cancelar -->
+                        {% if agendamento.status == 'agendado' %}
+                        <form action="{{ url_for('cancelar_agendamento', agendamento_id=agendamento.agendamento_id) }}" method="POST" style="display:inline;">
+                            <button type="submit" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');">Cancelar</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
         {% else %}
             <p>Você ainda não tem agendamentos.</p>
         {% endif %}
