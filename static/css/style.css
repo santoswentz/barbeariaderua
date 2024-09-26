@@ -602,7 +602,9 @@ footer {
     flex-direction: column;   /* Coloca os elementos em coluna (um embaixo do outro) */
     text-align: center;
 }
-
+.meusagendamentos p {
+    color: #ffffff;
+}
 .meusagendamentos h1 {
     color: #333;
     font-size: 28px;

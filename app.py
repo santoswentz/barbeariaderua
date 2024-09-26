@@ -197,6 +197,47 @@ def formatar_data_hora(data_hora):
 
 
 
+
+
+
+
+def gerar_horarios_disponiveis(data, horarios_ocupados, dia_da_semana):
+    horarios_disponiveis = []
+    
+    # Definir o intervalo de horário com base no dia da semana
+    if dia_da_semana == 6:  # Sábado
+        inicio_horario = 13  # 13:00
+        fim_horario = 18  # 18:00
+    elif dia_da_semana == 0:  # Domingo
+        return []  # Domingo fechado, sem horários disponíveis
+    else:  # Segunda a sexta
+        inicio_horario = 9  # 09:00
+        fim_horario = 20  # 20:00
+
+    # Gerar todos os horários possíveis em intervalos de 30 minutos
+    horario_atual = datetime.combine(data, datetime.min.time()) + timedelta(hours=inicio_horario)
+    fim_horario_dt = datetime.combine(data, datetime.min.time()) + timedelta(hours=fim_horario)
+
+    while horario_atual < fim_horario_dt:
+        # Formatar o horário no mesmo formato da lista `horarios_ocupados`
+        horario_formatado = horario_atual.strftime('%Y-%m-%d %H:%M')
+        
+        # Verificar se o horário não está ocupado
+        if horario_formatado not in horarios_ocupados:
+            horarios_disponiveis.append(horario_atual.strftime('%H:%M'))  # Adicionar apenas a hora no formato 'HH:MM'
+        
+        # Incrementar o horário em 30 minutos
+        horario_atual += timedelta(minutes=30)
+    
+    return horarios_disponiveis
+
+
+
+
+
+
+
+
 # Cliente agendar
 @app.route('/agendamentocliente', methods=['GET', 'POST'])
 def agendamento_cliente():
@@ -207,57 +248,44 @@ def agendamento_cliente():
     user_id = session['user_id']
     conn = get_db_connection()
 
+    # Obter a data atual ou a data selecionada pelo cliente
+    data_selecionada = request.args.get('data', datetime.now().date().isoformat())
+
+    # Verificar os horários já reservados para o dia selecionado
+    agendamentos_do_dia = conn.execute('''
+        SELECT strftime('%Y-%m-%d %H:%M', data_hora) as data_hora 
+        FROM Agendamentos 
+        WHERE strftime('%Y-%m-%d', data_hora) = ? AND status = 'agendado'
+    ''', (data_selecionada,)).fetchall()
+
+    horarios_ocupados = [agendamento['data_hora'] for agendamento in agendamentos_do_dia]
+
+    # Determinar o dia da semana
+    dia_da_semana = datetime.strptime(data_selecionada, '%Y-%m-%d').weekday()
+
+    # Gerar a lista de horários disponíveis
+    horarios_disponiveis = gerar_horarios_disponiveis(datetime.strptime(data_selecionada, '%Y-%m-%d'), horarios_ocupados, dia_da_semana)
+
     if request.method == 'POST':
         equipe_id = request.form['equipe_id']
         servicos_id = request.form['servicos_id']
-        data_hora = request.form['data_hora']
-
-        # Validação de horário
+        data_hora_str = request.form['data_hora']  # Obtém o valor do campo datetime-local
+        
         try:
-            data_hora_dt = datetime.fromisoformat(data_hora)
+            # Agora o input está no formato correto: '%Y-%m-%dT%H:%M'
+            data_hora = datetime.strptime(data_hora_str, '%Y-%m-%dT%H:%M')
 
-            # Impedir agendamentos no passado
-            if data_hora_dt < datetime.now():
-                raise ValueError("Você não pode agendar para uma data/hora no passado.")
-
-            # Verificar se o horário está arredondado para 30 minutos
-            if data_hora_dt.minute not in [0, 30]:
-                raise ValueError("O horário de agendamento deve ser arredondado para os intervalos de 30 minutos (Ex: 13:00, 13:30).")
-
-            # Limitar agendamentos simultâneos
-            agendamentos_ativos = conn.execute('''
-                SELECT COUNT(*) FROM Agendamentos 
-                WHERE user_id = ? AND status = 'agendado'
-            ''', (user_id,)).fetchone()[0]
-
-            if agendamentos_ativos >= 3:
-                raise ValueError("Você já tem 3 agendamentos em aberto. Aguarde até que um seja concluído ou cancelado antes de fazer um novo agendamento.")
-
-            dia_da_semana = data_hora_dt.weekday()
-            hora = data_hora_dt.hour
-
-            # Restrições de horário
-            if dia_da_semana == 6:  # Sábado
-                if hora < 13 or hora >= 18:
-                    raise ValueError("O horário de agendamento para sábado deve estar entre 13:00 e 18:00.")
-            elif dia_da_semana == 0:  # Domingo
-                raise ValueError("Não é possível agendar no domingo.")
-            else:  # Segunda a sexta
-                if hora < 9 or hora >= 20:
-                    raise ValueError("O horário de agendamento durante a semana deve estar entre 09:00 e 20:00.")
-
-            status = 'agendado'  # Status inicial do agendamento
-
-            # Inserir novo agendamento
+            # Inserir o agendamento no banco de dados
             conn.execute('''
                 INSERT INTO Agendamentos (user_id, equipe_id, servicos_id, data_hora, status)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (user_id, equipe_id, servicos_id, data_hora, status))
-
+            ''', (user_id, equipe_id, servicos_id, data_hora, 'agendado'))
             conn.commit()
             flash('Agendamento realizado com sucesso!')
+            return redirect(url_for('meus_agendamentos'))
+
         except ValueError as e:
-            flash(f'Erro: {e}')
+            flash(f'Erro no formato da data/hora: {e}')
         except sqlite3.Error as e:
             flash(f'Erro ao tentar realizar o agendamento: {e}')
 
@@ -265,7 +293,7 @@ def agendamento_cliente():
     servicos = conn.execute('SELECT servicos_id, nome FROM Servicos').fetchall()
     conn.close()
 
-    return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos)
+    return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos, horarios_disponiveis=horarios_disponiveis, data_selecionada=data_selecionada)
 
 
 
@@ -275,6 +303,15 @@ def agendamento_cliente():
 
 
 
+
+
+
+
+
+
+
+
+# Página para visualizar agendamentos do usuário logado
 # Página para visualizar agendamentos do usuário logado
 @app.route('/meus_agendamentos')
 def meus_agendamentos():
@@ -293,22 +330,31 @@ def meus_agendamentos():
         JOIN Equipe E ON A.equipe_id = E.equipe_id
         WHERE A.user_id = ? AND A.status = 'agendado'
     ''', (user_id,)).fetchall()
-    
+
     # Formatar as datas de forma mais amigável
-    agendamentos = [{'agendamento_id': agendamento['agendamento_id'],
-                     'data_hora': formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M')),
-                     'servico_nome': agendamento['servico_nome'],
-                     'equipe_nome': agendamento['equipe_nome'],
-                     'status': agendamento['status']} for agendamento in agendamentos]
-    
+    agendamentos_formatados = []
+    for agendamento in agendamentos:
+        try:
+            data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M'))
+        except ValueError:
+            data_hora_formatada = agendamento['data_hora']  # Manter formato original em caso de erro
+
+        agendamentos_formatados.append({
+            'agendamento_id': agendamento['agendamento_id'],
+            'data_hora': data_hora_formatada,
+            'servico_nome': agendamento['servico_nome'],
+            'equipe_nome': agendamento['equipe_nome'],
+            'status': agendamento['status']
+        })
+
     conn.close()
-    return render_template('meus_agendamentos.html', agendamentos=agendamentos)
+    return render_template('meus_agendamentos.html', agendamentos=agendamentos_formatados)
 
 
 
 
 
-# Página para cancelar um agendamento
+# Cancelar agendamento
 @app.route('/cancelar_agendamento/<int:agendamento_id>', methods=['POST'])
 def cancelar_agendamento(agendamento_id):
     if 'user_id' not in session:
@@ -339,6 +385,9 @@ def cancelar_agendamento(agendamento_id):
 
     flash('Agendamento cancelado com sucesso.')
     return redirect(url_for('meus_agendamentos'))
+
+def formatar_data_hora(data_hora):
+    return data_hora.strftime('%d/%m/%Y %H:%M')
 
 
 
