@@ -34,43 +34,61 @@ def init_db():
             role TEXT NOT NULL CHECK (role IN ('admin', 'cliente')),
             data_criacao TEXT DEFAULT (datetime('now')),
             ultimo_login TEXT
-)
-''')
+        );
+    ''')
+    
     conn.execute('''
-            CREATE TABLE IF NOT EXISTS Equipe (
+        CREATE TABLE IF NOT EXISTS Equipe (
             equipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             telefone TEXT,
-            email TEXT UNIQUE,
+            email TEXT,
             data_admissao TEXT DEFAULT (datetime('now')),
             ativo INTEGER DEFAULT 1,
-            imagem BLOB  -- Nova coluna para armazenar o caminho da imagem
+            imagem BLOB,
+            horario_inicial TEXT NOT NULL,  -- Horário de trabalho inicial (formato HH:MM)
+            horario_final TEXT NOT NULL     -- Horário de trabalho final (formato HH:MM)
         );
     ''')
+    
     conn.execute('''
         CREATE TABLE IF NOT EXISTS Servicos (
             servicos_id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             descricao TEXT,
             preco REAL NOT NULL,
-            duracao INTEGER  -- duração em minutos
+            duracao INTEGER,  -- duração em minutos
+            duracaosimplificada INTEGER NOT NULL--Duração com 0 até 10 para operações na tabela horarios
         );
     ''')
+
     conn.execute('''
         CREATE TABLE IF NOT EXISTS Agendamentos (
             agendamento_id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             equipe_id INTEGER,
             servicos_id INTEGER,
-            data_hora TEXT NOT NULL,
+            dia TEXT NOT NULL,
+            horainicial TEXT NOT NULL,
+            horafinal TEXT NOT NULL,
             status TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES Users(user_id),
             FOREIGN KEY (equipe_id) REFERENCES Equipe(equipe_id),
-            FOREIGN KEY (servicos_id) REFERENCES Servicos(servicos_id)
+            FOREIGN KEY (servicos_id) REFERENCES Servicos(servicos_id),
+            FOREIGN KEY (user_id) REFERENCES Users(user_id)
         );
     ''')
+
+    # Criando a tabela Horarios
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS Horarios (
+            horario_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            horario TEXT NOT NULL
+        );
+    ''')
+
     conn.commit()
     conn.close()
+
 
 # Chame init_db() para garantir que as tabelas existem
 init_db()
@@ -585,13 +603,17 @@ def gerenciar_usuarios():
 
 
 
-# CRUD serviços
 
+
+
+
+# CRUD serviços
 @app.route('/gerenciamentoservicos', methods=['GET', 'POST'])
 def gerenciar_servicos():
     if 'user_id' not in session or session.get('role') != 'admin':
         flash('Acesso negado. Apenas administradores podem acessar essa página.')
         return redirect(url_for('login'))  # Redirecionar para a página de login ou outra página
+
     conn = get_db_connection()
 
     if request.method == 'POST':
@@ -599,28 +621,42 @@ def gerenciar_servicos():
             nome = request.form['nome']
             descricao = request.form['descricao']
             preco = request.form['preco']
-            duracao = request.form['duracao']
-            print(f"Adicionando serviço: nome={nome}, descricao={descricao}, preco={preco}, duracao={duracao}")  # Debug
+            duracao = int(request.form['duracao'])
+
+            # Cálculo para duracaosimplificada
+            duracaosimplificada = (duracao + 14) // 15  # Incrementa 1 para cada bloco de 15 minutos, arredondando para cima
+            print(f"Adicionando serviço: nome={nome}, descricao={descricao}, preco={preco}, duracao={duracao}, duracaosimplificada={duracaosimplificada}")  # Debug
 
             try:
-                conn.execute('INSERT INTO Servicos (nome, descricao, preco, duracao) VALUES (?, ?, ?, ?)',
-                             (nome, descricao, preco, duracao))
+                conn.execute('''
+                    INSERT INTO Servicos (nome, descricao, preco, duracao, duracaosimplificada) 
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (nome, descricao, preco, duracao, duracaosimplificada))
                 conn.commit()
                 flash('Serviço adicionado com sucesso!')
             except sqlite3.IntegrityError as e:
-                print(f"Erro ao adicionar: {e}")  # Debug
-                flash('Erro ao adicionar o serviço.')
+                print(f"Erro de integridade ao adicionar: {e}")  # Debug
+                flash('Erro ao adicionar o serviço. Verifique os dados fornecidos.')
+            except Exception as e:
+                print(f"Erro inesperado ao adicionar: {e}")  # Debug
+                flash('Erro inesperado ao adicionar o serviço.')
 
         elif 'editar' in request.form:
             servicos_id = request.form['servicos_id']
             nome = request.form['nome']
             descricao = request.form['descricao']
             preco = request.form['preco']
-            duracao = request.form['duracao']
-            print(f"Editando serviço servicos_id={servicos_id}, nome={nome}, descricao={descricao}, preco={preco}, duracao={duracao}")  # Debug
+            duracao = int(request.form['duracao'])
+
+            # Cálculo para duracaosimplificada
+            duracaosimplificada = (duracao + 14) // 15  # Incrementa 1 para cada bloco de 15 minutos, arredondando para cima
+            print(f"Editando serviço servicos_id={servicos_id}, nome={nome}, descricao={descricao}, preco={preco}, duracao={duracao}, duracaosimplificada={duracaosimplificada}")  # Debug
             
-            conn.execute('UPDATE Servicos SET nome = ?, descricao = ?, preco = ?, duracao = ? WHERE servicos_id = ?',
-                         (nome, descricao, preco, duracao, servicos_id))
+            conn.execute('''
+                UPDATE Servicos 
+                SET nome = ?, descricao = ?, preco = ?, duracao = ?, duracaosimplificada = ? 
+                WHERE servicos_id = ?
+            ''', (nome, descricao, preco, duracao, duracaosimplificada, servicos_id))
             conn.commit()
             flash('Serviço atualizado com sucesso!')
 
@@ -635,6 +671,10 @@ def gerenciar_servicos():
     conn.close()
 
     return render_template('gerenciamento_servicos.html', servicos=servicos)
+
+
+
+
 
 if __name__ == '__main__':
     create_tables()  # Criação das tabelas na inicialização
