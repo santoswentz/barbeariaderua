@@ -617,6 +617,14 @@ footer {
     background-color: #fafafa;
 }
 
+
+@media (max-width: 934px) {
+    .meusagendamentos table{
+        width: 25vw;
+        margin: 0px 25px;
+    }
+} 
+
 .meusagendamentos table th, .meusagendamentos table td {
     border: 1px solid #ddd;
     padding: 12px;
@@ -663,6 +671,18 @@ footer {
     margin: 20px 0; /* Margem superior e inferior */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
 }
+
+@media (max-width: 934px) {
+    .regras{
+        width: 50vw;
+    }
+} 
+
+    @media (max-width: 934px) {
+        .regras ul li{
+            font-size: 11px; /* Tamanho da fonte do título */
+        }
+    }
 
 .regras h1 {
     font-size: 24px; /* Tamanho da fonte do título */

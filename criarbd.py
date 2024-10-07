@@ -53,21 +53,22 @@ conn.execute('''
         horainicial TEXT NOT NULL,
         horafinal TEXT NOT NULL,
         status TEXT NOT NULL,
+        data_cancelamento DATETIME,
         FOREIGN KEY (equipe_id) REFERENCES Equipe(equipe_id),
         FOREIGN KEY (servicos_id) REFERENCES Servicos(servicos_id),
         FOREIGN KEY (user_id) REFERENCES Users(user_id)
     );
 ''')
 
-    # Criando a tabela Horarios
-conn.execute('''
-    CREATE TABLE IF NOT EXISTS Horarios (
-        horario_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        horario TEXT NOT NULL
-    );
-''')
 
-# Inserindo horários de 15 em 15 minutos na tabela Horarios
+    # Criando a tabela Horarios
+#conn.execute('''
+#    CREATE TABLE IF NOT EXISTS Horarios (
+ #       horario_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  #      horario TEXT NOT NULL
+#    );
+#''')
+#Inserindo horários de 15 em 15 minutos na tabela Horarios
 horarios = []
 for hour in range(24):
     for minute in range(0, 60, 15):
@@ -77,10 +78,10 @@ for horario in horarios:
     conn.execute('INSERT INTO Horarios (horario) VALUES (?)', (horario,))
 
 # Inserindo o usuário administrador com nome "adm" e senha "adm"
-conn.execute('''
-    INSERT INTO Users (nome, email, senha, role)
-    VALUES ('adm', 'adm@gmail.com', 'adm', 'admin')
-''')
+#conn.execute('''
+#    INSERT INTO Users (nome, email, senha, role)
+#   VALUES ('adm', 'adm@gmail.com', 'adm', 'admin')
+#''')
 
 # Salva as mudanças e fecha a conexão
 conn.commit()

@@ -190,10 +190,7 @@ def admin_dashboard():
         return render_template('admin_dashboard.html')
     else:
         return redirect(url_for('login'))
-
-# Função para formatar a data/hora de forma humanizada
-def formatar_data_hora(data_hora):
-    return data_hora.strftime('%A, %d de %B de %Y, %H:%M')
+ 
 
 
 
@@ -312,7 +309,6 @@ def agendamento_cliente():
 
 
 # Página para visualizar agendamentos do usuário logado
-# Página para visualizar agendamentos do usuário logado
 @app.route('/meus_agendamentos')
 def meus_agendamentos():
     if 'user_id' not in session:
@@ -321,21 +317,30 @@ def meus_agendamentos():
 
     user_id = session['user_id']
     conn = get_db_connection()
+
+    # Obter a data e hora atuais
+    agora = datetime.now()
+
+    # Ajustar a consulta SQL para:
+    # 1. Não exibir agendamentos passados, a menos que estejam concluídos.
+    # 2. Não exibir agendamentos cancelados há mais de 24 horas.
     agendamentos = conn.execute('''
-        SELECT A.agendamento_id, A.data_hora, A.status, 
+        SELECT A.agendamento_id, A.data_hora, A.status, A.data_cancelamento, 
                S.nome AS servico_nome, 
                E.nome AS equipe_nome
         FROM Agendamentos A
         JOIN Servicos S ON A.servicos_id = S.servicos_id
         JOIN Equipe E ON A.equipe_id = E.equipe_id
-        WHERE A.user_id = ? AND A.status = 'agendado'
-    ''', (user_id,)).fetchall()
+        WHERE A.user_id = ?
+        AND (A.data_hora >= ? OR A.status = 'concluído')
+        AND (A.status != 'cancelado' OR (A.status = 'cancelado' AND A.data_cancelamento >= ?))
+    ''', (user_id, agora, agora - timedelta(hours=24))).fetchall()
 
     # Formatar as datas de forma mais amigável
     agendamentos_formatados = []
     for agendamento in agendamentos:
         try:
-            data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M'))
+            data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%d %H:%M:%S'))
         except ValueError:
             data_hora_formatada = agendamento['data_hora']  # Manter formato original em caso de erro
 
@@ -354,6 +359,8 @@ def meus_agendamentos():
 
 
 
+
+
 # Cancelar agendamento
 @app.route('/cancelar_agendamento/<int:agendamento_id>', methods=['POST'])
 def cancelar_agendamento(agendamento_id):
@@ -365,30 +372,40 @@ def cancelar_agendamento(agendamento_id):
 
     # Buscar informações do agendamento
     agendamento = conn.execute('SELECT data_hora, status FROM Agendamentos WHERE agendamento_id = ?', (agendamento_id,)).fetchone()
-    
+
     if agendamento is None:
-        flash('Agendamento não encontrado.')
+        print('Agendamento não encontrado.')
         return redirect(url_for('meus_agendamentos'))
 
-    data_agendamento = datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M')
+    try:
+        # Tentar formatar a data do agendamento
+        data_agendamento = datetime.strptime(agendamento['data_hora'], '%Y-%m-%d %H:%M:%S')
+    except ValueError as e:
+        print(f'Erro ao converter a data do agendamento: {str(e)}')
+        return redirect(url_for('meus_agendamentos'))
+
     agora = datetime.now()
 
     # Verificar se faltam menos de 24 horas para o agendamento
     if data_agendamento - agora < timedelta(hours=24):
-        flash('Não é possível cancelar o agendamento com menos de 24 horas de antecedência.')
+        print('Não é possível cancelar o agendamento com menos de 24 horas de antecedência.')
         return redirect(url_for('meus_agendamentos'))
 
-    # Cancelar o agendamento
-    conn.execute('UPDATE Agendamentos SET status = ? WHERE agendamento_id = ?', ('cancelado', agendamento_id))
-    conn.commit()
-    conn.close()
+    # Tentar atualizar o status do agendamento
+    try:
+        conn.execute('UPDATE Agendamentos SET status = ? WHERE agendamento_id = ?', ('cancelado', agendamento_id))
+        conn.commit()
+        print('Agendamento cancelado com sucesso.')
+    except Exception as e:
+        print(f'Ocorreu um erro ao cancelar o agendamento: {str(e)}')
 
-    flash('Agendamento cancelado com sucesso.')
+    conn.close()
     return redirect(url_for('meus_agendamentos'))
 
-def formatar_data_hora(data_hora):
-    return data_hora.strftime('%d/%m/%Y %H:%M')
 
+# Função para formatar a data/hora de forma humanizada
+def formatar_data_hora(data_hora):
+    return data_hora.strftime('%A, %d de %B de %Y, %H:%M')
 
 
 

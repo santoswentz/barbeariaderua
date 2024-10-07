@@ -42,9 +42,12 @@
                     <td>
                         <!-- Verificar se o status é 'agendado' antes de exibir o botão de cancelar -->
                         {% if agendamento.status == 'agendado' %}
-                        <form action="{{ url_for('cancelar_agendamento', agendamento_id=agendamento.agendamento_id) }}" method="POST" style="display:inline;">
+                            
+                        <form action="{{ url_for('cancelar_agendamento', agendamento_id=agendamento['agendamento_id']) }}" method="POST" style="display:inline;">
                             <button type="submit" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');">Cancelar</button>
                         </form>
+                        
+                         
                         {% endif %}
                     </td>
                 </tr>
