@@ -235,6 +235,47 @@ def gerar_horarios_disponiveis(data, horarios_ocupados, dia_da_semana):
 
 
 
+
+
+
+
+def gerar_horarios_disponiveis(data, horarios_ocupados, dia_da_semana):
+    horarios_disponiveis = []
+    
+    # Definir o intervalo de horário com base no dia da semana
+    if dia_da_semana == 6:  # Sábado
+        inicio_horario = 13  # 13:00
+        fim_horario = 18  # 18:00
+    elif dia_da_semana == 0:  # Domingo
+        return []  # Domingo fechado, sem horários disponíveis
+    else:  # Segunda a sexta
+        inicio_horario = 9  # 09:00
+        fim_horario = 20  # 20:00
+
+    # Gerar todos os horários possíveis em intervalos de 30 minutos
+    horario_atual = datetime.combine(data, datetime.min.time()) + timedelta(hours=inicio_horario)
+    fim_horario_dt = datetime.combine(data, datetime.min.time()) + timedelta(hours=fim_horario)
+
+    while horario_atual < fim_horario_dt:
+        # Formatar o horário no mesmo formato da lista `horarios_ocupados`
+        horario_formatado = horario_atual.strftime('%Y-%m-%d %H:%M')
+        
+        # Verificar se o horário não está ocupado
+        if horario_formatado not in horarios_ocupados:
+            horarios_disponiveis.append(horario_atual.strftime('%H:%M'))  # Adicionar apenas a hora no formato 'HH:MM'
+        
+        # Incrementar o horário em 30 minutos
+        horario_atual += timedelta(minutes=30)
+    
+    return horarios_disponiveis
+
+
+
+
+
+
+
+
 # Cliente agendar
 @app.route('/agendamentocliente', methods=['GET', 'POST'])
 def agendamento_cliente():
@@ -291,6 +332,17 @@ def agendamento_cliente():
     conn.close()
 
     return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos, horarios_disponiveis=horarios_disponiveis, data_selecionada=data_selecionada)
+<<<<<<< HEAD
+
+
+
+
+
+
+
+
+=======
+>>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
 
 
 
@@ -308,6 +360,7 @@ def agendamento_cliente():
 
 
 
+# Página para visualizar agendamentos do usuário logado
 # Página para visualizar agendamentos do usuário logado
 @app.route('/meus_agendamentos')
 def meus_agendamentos():
@@ -331,16 +384,25 @@ def meus_agendamentos():
         FROM Agendamentos A
         JOIN Servicos S ON A.servicos_id = S.servicos_id
         JOIN Equipe E ON A.equipe_id = E.equipe_id
+<<<<<<< HEAD
         WHERE A.user_id = ?
         AND (A.data_hora >= ? OR A.status = 'concluído')
         AND (A.status != 'cancelado' OR (A.status = 'cancelado' AND A.data_cancelamento >= ?))
     ''', (user_id, agora, agora - timedelta(hours=24))).fetchall()
+=======
+        WHERE A.user_id = ? AND A.status = 'agendado'
+    ''', (user_id,)).fetchall()
+>>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
 
     # Formatar as datas de forma mais amigável
     agendamentos_formatados = []
     for agendamento in agendamentos:
         try:
+<<<<<<< HEAD
             data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%d %H:%M:%S'))
+=======
+            data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M'))
+>>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
         except ValueError:
             data_hora_formatada = agendamento['data_hora']  # Manter formato original em caso de erro
 
@@ -359,8 +421,11 @@ def meus_agendamentos():
 
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
 # Cancelar agendamento
 @app.route('/cancelar_agendamento/<int:agendamento_id>', methods=['POST'])
 def cancelar_agendamento(agendamento_id):
@@ -401,6 +466,9 @@ def cancelar_agendamento(agendamento_id):
 
     conn.close()
     return redirect(url_for('meus_agendamentos'))
+
+def formatar_data_hora(data_hora):
+    return data_hora.strftime('%d/%m/%Y %H:%M')
 
 
 # Função para formatar a data/hora de forma humanizada
