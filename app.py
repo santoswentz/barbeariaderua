@@ -332,27 +332,6 @@ def agendamento_cliente():
     conn.close()
 
     return render_template('agendamentocliente.html', equipe=equipe, servicos=servicos, horarios_disponiveis=horarios_disponiveis, data_selecionada=data_selecionada)
-<<<<<<< HEAD
-
-
-
-
-
-
-
-
-=======
->>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -384,25 +363,16 @@ def meus_agendamentos():
         FROM Agendamentos A
         JOIN Servicos S ON A.servicos_id = S.servicos_id
         JOIN Equipe E ON A.equipe_id = E.equipe_id
-<<<<<<< HEAD
         WHERE A.user_id = ?
         AND (A.data_hora >= ? OR A.status = 'concluído')
         AND (A.status != 'cancelado' OR (A.status = 'cancelado' AND A.data_cancelamento >= ?))
     ''', (user_id, agora, agora - timedelta(hours=24))).fetchall()
-=======
-        WHERE A.user_id = ? AND A.status = 'agendado'
-    ''', (user_id,)).fetchall()
->>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
 
     # Formatar as datas de forma mais amigável
     agendamentos_formatados = []
     for agendamento in agendamentos:
         try:
-<<<<<<< HEAD
             data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%d %H:%M:%S'))
-=======
-            data_hora_formatada = formatar_data_hora(datetime.strptime(agendamento['data_hora'], '%Y-%m-%dT%H:%M'))
->>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
         except ValueError:
             data_hora_formatada = agendamento['data_hora']  # Manter formato original em caso de erro
 
@@ -421,11 +391,6 @@ def meus_agendamentos():
 
 
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> ee353dd6185a1b84de3fbd0d0e15f7c40078f4e6
 # Cancelar agendamento
 @app.route('/cancelar_agendamento/<int:agendamento_id>', methods=['POST'])
 def cancelar_agendamento(agendamento_id):
